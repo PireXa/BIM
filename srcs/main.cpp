@@ -19,7 +19,7 @@ const char* vertexShaderSource = R"(
 
 	void main() {
 	    // Transform vertex position to camera space
-		gl_Position = view * projection * vec4(position, 1.0);
+		gl_Position = view * vec4(position, 1.0);
 
 	    // Pass color to the fragment shader
 	    FragColor = color;
