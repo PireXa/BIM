@@ -11,6 +11,7 @@ const char* vertexShaderSource = R"(
 	uniform mat4 view;  // Uniform view matrix
 	uniform mat4 model;  // Uniform model matrix
 	uniform mat4 projection;  // Uniform projection matrix
+    uniform mat4 vp;  // Uniform view-projection matrix
 
 	layout (location = 0) in vec3 position;  // Input: Vertex position
 	layout (location = 1) in vec3 color;     // Input: Vertex color
@@ -19,7 +20,7 @@ const char* vertexShaderSource = R"(
 
 	void main() {
 	    // Transform vertex position to camera space
-		gl_Position = view * vec4(position, 1.0);
+		gl_Position = vp * vec4(position, 1.0);
 
 	    // Pass color to the fragment shader
 	    FragColor = color;
@@ -63,6 +64,7 @@ GLuint   ShaderSetups() {
 }
 
 #include <cmath>
+#include <vector>
 
 void invertMatrix(const float src[16], float dest[16]) {
 	float tmp[12];
@@ -149,13 +151,13 @@ void invertMatrix(const float src[16], float dest[16]) {
 	}
 }
 
-void updateViewMatrix(const Camera& camera, float viewMatrix[16]) {
-	float matrix[16];
-	camera.getRotationMatrix(matrix);
-	invertMatrix(matrix, viewMatrix);
-	viewMatrix[12] = -camera.position[0];
-	viewMatrix[13] = -camera.position[1];
-	viewMatrix[14] = -camera.position[2];
+void printMatrix(const float* matrix) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            std::cout << matrix[i * 4 + j] << "\t";
+        }
+        std::cout << std::endl;
+    }
 }
 
 int main() {
@@ -183,9 +185,9 @@ int main() {
 
 	// Vertex data for a simple triangle
 	float vertices[] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-			0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
+			0.0f,  0.5f, 0.0f, 0.4f, 1.0f, 0.45f,
+			0.5f, -0.5f, 0.0f, 0.0f, 0.4f, 0.0f,
 	};
 
 	// Vertex Buffer Object (VBO)
@@ -214,41 +216,46 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-//	Model model;
-	Projection projection;
-
 	while (!glfwWindowShouldClose(window)) {
-		//Rotation Animation
-//		if (count++ < 100)
-//			camera.rotate(0.02f, 0.0f, 1.0f, 0.0f);
-//		else
-//			camera.rotate(0.02f, 1.0f, 0.0f, 0.0f);
-		camera.rotate(0.02f, 0.0f, 1.0f, 0.0f);
+
+		camera.rotate(0.0005f, 0.0f, 1.0f, 0.0f);
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Update view matrix
-		float viewMatrix[16];
-		updateViewMatrix(camera, viewMatrix);
+        glm::mat4 viewMatrix;
+        viewMatrix = camera.getViewMatrix();
+
+        // Set up the projection matrix (you might do this once in your initialization)
+        glm::mat4 projectionMatrix = glm::perspective(glm::radians(90.0f), // FOV
+                                                      800.0f / 600.0f,          // Aspect ratio
+                                                      0.1f, 100.0f);        // Near and far planes
+
+        // Combine the view matrix and projection matrix to get the final MVP matrix
+        glm::mat4 mvpMatrix = projectionMatrix * viewMatrix;
+
+        // Pass the MVP matrix to the shader
+        GLint mvpMatrixLoc = glGetUniformLocation(shaderProgram, "vp");
+        glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
 //		float modelMatrix[16];
 //		model.getModelMatrix(modelMatrix);
 
-		float projectionMatrix[16];
-		projection.getPerspectiveProjectionMatrix(800, 600, projectionMatrix);
+//		float projectionMatrix[16];
+
 
 		// Pass the view matrix to the vertex shader
-		GLint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view");
-		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, viewMatrix);
+//		GLint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view");
+//		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
 		// Pass the model matrix to the vertex shader
 //		GLint modelMatrixLoc = glGetUniformLocation(shaderProgram, "model");
 //		glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, modelMatrix);
 
 		// Pass the projection matrix to the vertex shader
-		GLint projectionMatrixLoc = glGetUniformLocation(shaderProgram, "projection");
-		glUniformMatrix4fv(projectionMatrixLoc, 1, GL_FALSE, projectionMatrix);
+//		GLint projectionMatrixLoc = glGetUniformLocation(shaderProgram, "projection");
+//		glUniformMatrix4fv(projectionMatrixLoc, 1, GL_FALSE, projectionMatrix);
 
 		// Use the shader program and VAO
 		glUseProgram(shaderProgram);
@@ -265,7 +272,7 @@ int main() {
 		glfwPollEvents();
 
 		//slow framerate
-//		glfwSwapInterval(5);
+		glfwSwapInterval(10000);
 	}
 
 	// Clean up
