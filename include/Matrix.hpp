@@ -18,7 +18,8 @@ public:
 	}
 
 	// Multiply the given matrix by another 4x4 matrix
-	static void multiplyMatrix(const float* a, const float* b, float* result) {
+	static void	multiplyMatrix(const float* a, const float* b, float* result)
+	{
 		for (int i = 0; i < 4; ++i) {
 			for (int j = 0; j < 4; ++j) {
 				result[i * 4 + j] =
@@ -65,8 +66,9 @@ private:
 				0.0f, 0.0f, 1.0f, z,
 				0.0f, 0.0f, 0.0f, 1.0f
 		};
-
-		MatrixUtils::multiplyMatrix(matrix, translationMatrix, matrix);
+		float	result[16];
+		MatrixUtils::multiplyMatrix(matrix, translationMatrix, result);
+		matrix = result;
 	}
 
 	// Multiply the given matrix by a rotation matrix
@@ -86,8 +88,9 @@ private:
 				x * z * (1 - c) - y * s, y * z * (1 - c) + x * s, z * z * (1 - c) + c, 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f
 		};
-
-		MatrixUtils::multiplyMatrix(matrix, rotationMatrix, matrix);
+		float	result[16];
+		MatrixUtils::multiplyMatrix(matrix, rotationMatrix, result);
+		matrix = result;
 	}
 
 	// Multiply the given matrix by a scaling matrix
@@ -98,8 +101,9 @@ private:
 				0.0f, 0.0f, scaleZ, 0.0f,
 				0.0f, 0.0f, 0.0f, 1.0f
 		};
-
-		MatrixUtils::multiplyMatrix(matrix, scaleMatrix, matrix);
+		float result[16];
+		MatrixUtils::multiplyMatrix(matrix, scaleMatrix, result);
+		matrix = result;
 	}
 };
 
@@ -121,17 +125,41 @@ public:
 		};
 		MatrixUtils::multiplyMatrix(projectionMatrix, orthoProjectionMatrix, projectionMatrix);
 	}
+	void getPerspectiveProjectionMatrix(float fov, float aspectRatio, float nearClip, float farClip, float* projectionMatrix) {
+        	// Convert the field of view from degrees to radians
+        	float fovRad = (fov / 2.0f) * (M_PI / 180.0f);
 
-	void getPerspectiveProjectionMatrix(float screenWidth, float screenHeight, float* projectionMatrix) const {
-		float aspectRatio = screenWidth / screenHeight;
+        	// Calculate the parameters for the perspective matrix
+        	float tanHalfFov = std::tan(fovRad);
+        	float range = nearClip - farClip;
 
-		float perspectiveProjectionMatrix[16] = {
-				2.0f * nearClip / (right - left), 0.0f, (right + left) / (right - left), 0.0f,
-				0.0f, 2.0f * nearClip / (top - bottom), (top + bottom) / (top - bottom), 0.0f,
-				0.0f, 0.0f, -(farClip + nearClip) / (farClip - nearClip), -2.0f * farClip * nearClip / (farClip - nearClip),
-				0.0f, 0.0f, -1.0f, 0.0f
-		};
-		MatrixUtils::multiplyMatrix(projectionMatrix, perspectiveProjectionMatrix, projectionMatrix);
+        	// Set up the perspective matrix
+        	projectionMatrix[0] = 1.0f / ( tanHalfFov);
+        	projectionMatrix[1] = 0.0f;
+        	projectionMatrix[2] = 0.0f;
+        	projectionMatrix[3] = 0.0f;
+
+        	projectionMatrix[4] = 0.0f;
+        	projectionMatrix[5] = 1.0f / tanHalfFov;
+        	projectionMatrix[6] = 0.0f;
+        	projectionMatrix[7] = 0.0f;
+
+        	projectionMatrix[8] = 0.0f;
+        	projectionMatrix[9] = 0.0f;
+       		projectionMatrix[10] = -(farClip) / (farClip - nearClip);
+        	projectionMatrix[11] = -1.0f;
+
+        	projectionMatrix[12] = 0.0f;
+        	projectionMatrix[13] = 0.0f;
+        	projectionMatrix[14] = -(farClip *  nearClip) / (farClip - nearClip);
+     		projectionMatrix[15] = 0.0f;
+
+		for (int i = 0; i < 4; ++i) {
+            		for (int j = 0; j < 4; ++j) {
+               			std::cout << projectionMatrix[i * 4 + j] << "\t";
+            		}
+            		std::cout << std::endl;
+        	}
 	}
 };
 

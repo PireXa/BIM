@@ -4,6 +4,9 @@
 #include "GLFW/glfw3.h"
 #include "Camera.hpp"
 #include "Matrix.hpp"
+#include <fstream>
+#include <sstream>
+#include <vector>
 
 const char* vertexShaderSource = R"(
 	#version 330 core
@@ -63,102 +66,31 @@ GLuint   ShaderSetups() {
 	return shaderProgram;
 }
 
-#include <cmath>
-#include <vector>
+struct Vertex {
+    float x, y, z;
+    float u, v; // Texture coordinates
+    float nx, ny, nz; // Normals
+};
 
-void invertMatrix(const float src[16], float dest[16]) {
-	float tmp[12];
-	float srcCopy[16];
+std::vector<Vertex> readObjFile(const std::string& filename) {
+    std::vector<Vertex> vertices;
 
-	// Copy the source matrix
-	for (int i = 0; i < 16; i++) {
-		srcCopy[i] = src[i];
-	}
+    std::ifstream file(filename);
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string type;
+        iss >> type;
 
-	// Calculate pairs for first 8 elements (cofactors)
-	tmp[0] = srcCopy[10] * srcCopy[15];
-	tmp[1] = srcCopy[11] * srcCopy[14];
-	tmp[2] = srcCopy[9] * srcCopy[15];
-	tmp[3] = srcCopy[11] * srcCopy[13];
-	tmp[4] = srcCopy[9] * srcCopy[14];
-	tmp[5] = srcCopy[10] * srcCopy[13];
-	tmp[6] = srcCopy[8] * srcCopy[15];
-	tmp[7] = srcCopy[11] * srcCopy[12];
-	tmp[8] = srcCopy[8] * srcCopy[14];
-	tmp[9] = srcCopy[10] * srcCopy[12];
-	tmp[10] = srcCopy[8] * srcCopy[13];
-	tmp[11] = srcCopy[9] * srcCopy[12];
-
-	// Calculate first 8 elements (cofactors)
-	dest[0] = tmp[0] * srcCopy[5] + tmp[3] * srcCopy[6] + tmp[4] * srcCopy[7];
-	dest[0] -= tmp[1] * srcCopy[5] + tmp[2] * srcCopy[6] + tmp[5] * srcCopy[7];
-	dest[1] = tmp[1] * srcCopy[4] + tmp[6] * srcCopy[6] + tmp[9] * srcCopy[7];
-	dest[1] -= tmp[0] * srcCopy[4] + tmp[7] * srcCopy[6] + tmp[8] * srcCopy[7];
-	dest[2] = tmp[2] * srcCopy[4] + tmp[7] * srcCopy[5] + tmp[10] * srcCopy[7];
-	dest[2] -= tmp[3] * srcCopy[4] + tmp[6] * srcCopy[5] + tmp[11] * srcCopy[7];
-	dest[3] = tmp[5] * srcCopy[4] + tmp[8] * srcCopy[5] + tmp[11] * srcCopy[6];
-	dest[3] -= tmp[4] * srcCopy[4] + tmp[9] * srcCopy[5] + tmp[10] * srcCopy[6];
-	dest[4] = tmp[1] * srcCopy[1] + tmp[2] * srcCopy[2] + tmp[5] * srcCopy[3];
-	dest[4] -= tmp[0] * srcCopy[1] + tmp[3] * srcCopy[2] + tmp[4] * srcCopy[3];
-	dest[5] = tmp[0] * srcCopy[0] + tmp[7] * srcCopy[2] + tmp[8] * srcCopy[3];
-	dest[5] -= tmp[1] * srcCopy[0] + tmp[6] * srcCopy[2] + tmp[9] * srcCopy[3];
-	dest[6] = tmp[3] * srcCopy[0] + tmp[6] * srcCopy[1] + tmp[11] * srcCopy[3];
-	dest[6] -= tmp[2] * srcCopy[0] + tmp[7] * srcCopy[1] + tmp[10] * srcCopy[3];
-	dest[7] = tmp[4] * srcCopy[0] + tmp[9] * srcCopy[1] + tmp[10] * srcCopy[2];
-	dest[7] -= tmp[5] * srcCopy[0] + tmp[8] * srcCopy[1] + tmp[11] * srcCopy[2];
-
-	// Calculate pairs for second 8 elements (cofactors)
-	tmp[0] = srcCopy[2] * srcCopy[7];
-	tmp[1] = srcCopy[3] * srcCopy[6];
-	tmp[2] = srcCopy[1] * srcCopy[7];
-	tmp[3] = srcCopy[3] * srcCopy[5];
-	tmp[4] = srcCopy[1] * srcCopy[6];
-	tmp[5] = srcCopy[2] * srcCopy[5];
-	tmp[6] = srcCopy[0] * srcCopy[7];
-	tmp[7] = srcCopy[3] * srcCopy[4];
-	tmp[8] = srcCopy[0] * srcCopy[6];
-	tmp[9] = srcCopy[2] * srcCopy[4];
-	tmp[10] = srcCopy[0] * srcCopy[5];
-	tmp[11] = srcCopy[1] * srcCopy[4];
-
-	// Calculate second 8 elements (cofactors)
-	dest[8] = tmp[0] * srcCopy[13] + tmp[3] * srcCopy[14] + tmp[4] * srcCopy[15];
-	dest[8] -= tmp[1] * srcCopy[13] + tmp[2] * srcCopy[14] + tmp[5] * srcCopy[15];
-	dest[9] = tmp[1] * srcCopy[12] + tmp[6] * srcCopy[14] + tmp[9] * srcCopy[15];
-	dest[9] -= tmp[0] * srcCopy[12] + tmp[7] * srcCopy[14] + tmp[8] * srcCopy[15];
-	dest[10] = tmp[2] * srcCopy[12] + tmp[7] * srcCopy[13] + tmp[10] * srcCopy[15];
-	dest[10] -= tmp[3] * srcCopy[12] + tmp[6] * srcCopy[13] + tmp[11] * srcCopy[15];
-	dest[11] = tmp[5] * srcCopy[12] + tmp[8] * srcCopy[13] + tmp[11] * srcCopy[14];
-	dest[11] -= tmp[4] * srcCopy[12] + tmp[9] * srcCopy[13] + tmp[10] * srcCopy[14];
-	dest[12] = tmp[2] * srcCopy[10] + tmp[5] * srcCopy[11] + tmp[1] * srcCopy[9];
-	dest[12] -= tmp[4] * srcCopy[11] + tmp[0] * srcCopy[9] + tmp[3] * srcCopy[10];
-	dest[13] = tmp[8] * srcCopy[11] + tmp[0] * srcCopy[8] + tmp[7] * srcCopy[10];
-	dest[13] -= tmp[6] * srcCopy[10] + tmp[9] * srcCopy[11] + tmp[1] * srcCopy[8];
-	dest[14] = tmp[6] * srcCopy[9] + tmp[11] * srcCopy[11] + tmp[3] * srcCopy[8];
-	dest[14] -= tmp[10] * srcCopy[11] + tmp[2] * srcCopy[8] + tmp[7] * srcCopy[9];
-	dest[15] = tmp[10] * srcCopy[10] + tmp[4] * srcCopy[8] + tmp[9] * srcCopy[9];
-	dest[15] -= tmp[8] * srcCopy[9] + tmp[11] * srcCopy[10] + tmp[5] * srcCopy[8];
-
-	// Calculate determinant
-	float det = srcCopy[0] * dest[0] + srcCopy[1] * dest[1] + srcCopy[2] * dest[2] + srcCopy[3] * dest[3];
-
-	// Multiply by inverse of determinant
-	det = 1.0f / det;
-
-	// Multiply each element by the inverse of the determinant
-	for (int i = 0; i < 16; i++) {
-		dest[i] *= det;
-	}
-}
-
-void printMatrix(const float* matrix) {
-    for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 4; ++j) {
-            std::cout << matrix[i * 4 + j] << "\t";
+        if (type == "v") {
+            Vertex vertex{};
+            iss >> vertex.x >> vertex.y >> vertex.z;
+            vertices.push_back(vertex);
         }
-        std::cout << std::endl;
     }
+    return vertices;
 }
+
 
 int main() {
 	glfwInit();
@@ -183,20 +115,40 @@ int main() {
 
 	Camera camera;
 
+    std::vector <Vertex>verticesFromFile = readObjFile("./Models/Lowpoly_tree.obj");
+    float vertices[verticesFromFile.size() * 6];
+    int vertexCount = verticesFromFile.size();
+    int i = 0;
+    for (Vertex vertex : verticesFromFile) {
+        std::cout << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
+        vertices[i++] = vertex.x;
+        vertices[i++] = vertex.y;
+        vertices[i++] = vertex.z;
+        vertices[i++] = 1.0f;
+        vertices[i++] = 1.0f;
+        vertices[i++] = 1.0f;
+    }
+
 	// Vertex data for a simple triangle
-	float vertices[] = {
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-			0.0f,  0.5f, 0.0f, 0.4f, 1.0f, 0.45f,
-			0.5f, -0.5f, 0.0f, 0.0f, 0.4f, 0.0f,
-	};
+//	float vertices[] = {
+//			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+//			0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+//			0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+//
+//            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
+//            0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+//            0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
+//	};
 
-	// Vertex Buffer Object (VBO)
-	GLuint VBO;
-	glGenBuffers(1, &VBO);
+//    glDisable(GL_CULL_FACE);
 
-	// Vertex Array Object (VAO)
-	GLuint VAO;
-	glGenVertexArrays(1, &VAO);
+    // Vertex Buffer Object (VBO)
+    GLuint VBO;
+    glGenBuffers(1, &VBO);
+
+    // Vertex Array Object (VAO)
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
 
 	// Bind VAO
 	glBindVertexArray(VAO);
@@ -228,7 +180,7 @@ int main() {
         viewMatrix = camera.getViewMatrix();
 
         // Set up the projection matrix (you might do this once in your initialization)
-        glm::mat4 projectionMatrix = glm::perspective(glm::radians(90.0f), // FOV
+        glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
                                                       800.0f / 600.0f,          // Aspect ratio
                                                       0.1f, 100.0f);        // Near and far planes
 
@@ -239,30 +191,12 @@ int main() {
         GLint mvpMatrixLoc = glGetUniformLocation(shaderProgram, "vp");
         glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 
-//		float modelMatrix[16];
-//		model.getModelMatrix(modelMatrix);
-
-//		float projectionMatrix[16];
-
-
-		// Pass the view matrix to the vertex shader
-//		GLint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view");
-//		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-
-		// Pass the model matrix to the vertex shader
-//		GLint modelMatrixLoc = glGetUniformLocation(shaderProgram, "model");
-//		glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, modelMatrix);
-
-		// Pass the projection matrix to the vertex shader
-//		GLint projectionMatrixLoc = glGetUniformLocation(shaderProgram, "projection");
-//		glUniformMatrix4fv(projectionMatrixLoc, 1, GL_FALSE, projectionMatrix);
-
 		// Use the shader program and VAO
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 
 		// Draw the triangle
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount * 6);
 
 		// Unbind VAO
 		glBindVertexArray(0);
