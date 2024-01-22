@@ -16,7 +16,8 @@ class Camera {
     public:
         Camera() : orientation(), position() {
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-            position = glm::vec3(0.0f, 10.0f, 20.0f);
+            position = glm::vec3(-150.0f, 150.0f, 250.0f);
+//			position = glm::vec3(-2.0f, 1.5f, 5.0f);
         }
         void    rotate(float angle, float x, float y, float z) {
             glm::vec3 axis = glm::normalize(glm::vec3(x, y, z));
