@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
+#include <chrono>
 
 const char* vertexShaderSource = R"(
 	#version 330 core
@@ -68,29 +70,112 @@ GLuint   ShaderSetups() {
 
 struct Vertex {
     float x, y, z;
-    float u, v; // Texture coordinates
-    float nx, ny, nz; // Normals
+//    float u, v; // Texture coordinates
+//    float nx, ny, nz; // Normals
 };
 
-std::vector<Vertex> readObjFile(const std::string& filename) {
-    std::vector<Vertex> vertices;
-
-    std::ifstream file(filename);
-    std::string line;
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        std::string type;
-        iss >> type;
-
-        if (type == "v") {
-            Vertex vertex{};
-            iss >> vertex.x >> vertex.y >> vertex.z;
-            vertices.push_back(vertex);
-        }
-    }
-    return vertices;
+std::vector <Vertex>readVertices(const std::string &filename)
+{
+	std::ifstream file(filename);
+	std::string line;
+	std::vector <Vertex> vertices;
+	while (std::getline(file, line))
+	{
+		std::istringstream iss(line);
+		char trash;
+		if (!line.compare(0, 2, "v "))
+		{
+			Vertex v;
+			iss >> trash >> v.x >> v.y >> v.z;
+			vertices.push_back(v);
+		}
+	}
+	return vertices;
 }
 
+int getFaceCount(const std::string &filename)
+{
+	std::ifstream file(filename);
+	std::string line;
+	int faceCount = 0;
+	while (std::getline(file, line))
+	{
+		std::istringstream iss(line);
+		char trash;
+		if (!line.compare(0, 2, "f "))
+		{
+			faceCount++;
+		}
+	}
+	return faceCount;
+}
+
+float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, int *vertexCount)
+{
+	std::ifstream file(filename);
+	std::string line;
+	std::vector <Vertex> verticesData = readVertices(filename);
+	int faceCount = getFaceCount(filename);
+//	std::cout << faceCount << std::endl;
+	float *vertex = new float[faceCount * 18];
+	int i = 0;
+	while (std::getline(file, line))
+	{
+		std::istringstream iss(line);
+		char trash;
+		if (!line.compare(0, 2, "f "))
+		{
+//			int f, t1, f1, t2, f2;
+//			iss >> trash >> f >> trash >> t1 >> f1 >> trash >> t2 >> f2;
+			int f, t1, f1, t2, f2;
+			iss >> trash >> f;
+
+			// Check if the line contains texture coordinates
+			if (iss.peek() == '/')
+			{
+				iss >> trash >> t1 >> f1 >> trash >> t2 >> f2;
+			}
+			else
+			{
+				// If there are no texture coordinates, use default values
+				t1 = t2 = 0;
+				iss >> f1 >> f2;
+			}
+			//vertex 1 coordinates
+			vertex[i] = vertices[f - 1].x;
+			vertex[i + 1] = vertices[f - 1].y;
+			vertex[i + 2] = vertices[f - 1].z;
+			i += 3;
+			//vertex 1 color
+			vertex[i] = 1.0f;
+			vertex[i + 1] = 0.0f;
+			vertex[i + 2] = 0.0f;
+			i += 3;
+			//vertex 2 coordinates
+			vertex[i] = vertices[f1 - 1].x;
+			vertex[i + 1] = vertices[f1 - 1].y;
+			vertex[i + 2] = vertices[f1 - 1].z;
+			i += 3;
+			//vertex 2 color
+			vertex[i] = 0.0f;
+			vertex[i + 1] = 1.0f;
+			vertex[i + 2] = 0.0f;
+			i += 3;
+			//vertex 3 coordinates
+			vertex[i] = vertices[f2 - 1].x;
+			vertex[i + 1] = vertices[f2 - 1].y;
+			vertex[i + 2] = vertices[f2 - 1].z;
+			i += 3;
+			//vertex 3 color
+			vertex[i] = 0.0f;
+			vertex[i + 1] = 0.0f;
+			vertex[i + 2] = 1.0f;
+			i += 3;
+			*vertexCount += 3;
+		}
+	}
+	return vertex;
+}
 
 int main() {
 	glfwInit();
@@ -111,36 +196,18 @@ int main() {
 		return -1;
 	}
 
+	//Enable rendering of only front-facing triangles
+	glEnable(GL_DEPTH_TEST);
+
 	GLuint shaderProgram = ShaderSetups();
 
 	Camera camera;
 
-    std::vector <Vertex>verticesFromFile = readObjFile("./Models/Lowpoly_tree.obj");
-    float vertices[verticesFromFile.size() * 6];
-    int vertexCount = verticesFromFile.size();
-    int i = 0;
-    for (Vertex vertex : verticesFromFile) {
-        std::cout << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
-        vertices[i++] = vertex.x;
-        vertices[i++] = vertex.y;
-        vertices[i++] = vertex.z;
-        vertices[i++] = 1.0f;
-        vertices[i++] = 1.0f;
-        vertices[i++] = 1.0f;
-    }
+	int vertexCount = 0;
+	std::string filename = "..\\Models\\Wolf.obj";
+	std::vector<Vertex> verticesData = readVertices(filename);
 
-	// Vertex data for a simple triangle
-//	float vertices[] = {
-//			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-//			0.0f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-//			0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-//
-//            -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f,
-//            0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-//            0.0f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-//	};
-
-//    glDisable(GL_CULL_FACE);
+	float *parsedVertices = buildFaces(verticesData, filename, &vertexCount);
 
     // Vertex Buffer Object (VBO)
     GLuint VBO;
@@ -155,7 +222,7 @@ int main() {
 
 	// Bind VBO and copy vertex data to it
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * vertexCount , parsedVertices, GL_STATIC_DRAW);
 
 	// Specify vertex attribute pointers and enable them
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -168,12 +235,15 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	auto lastTime = std::chrono::high_resolution_clock::now();
+	int frameCount = 0;
+
 	while (!glfwWindowShouldClose(window)) {
 
-		camera.rotate(0.0005f, 0.0f, 1.0f, 0.0f);
+		camera.rotate(0.002f, 0.0f, 1.0f, 0.0f);
 
 		// Render
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Update view matrix
         glm::mat4 viewMatrix;
@@ -182,7 +252,7 @@ int main() {
         // Set up the projection matrix (you might do this once in your initialization)
         glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
                                                       800.0f / 600.0f,          // Aspect ratio
-                                                      0.1f, 100.0f);        // Near and far planes
+                                                      0.1f, 600.0f);        // Near and far planes
 
         // Combine the view matrix and projection matrix to get the final MVP matrix
         glm::mat4 mvpMatrix = projectionMatrix * viewMatrix;
@@ -196,7 +266,24 @@ int main() {
 		glBindVertexArray(VAO);
 
 		// Draw the triangle
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount * 6);
+		glDrawArrays(GL_TRIANGLES, 0, vertexCount * 3);
+
+		// FPS calculation
+		auto currentTime = std::chrono::high_resolution_clock::now();
+		double deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastTime).count() / 1e6;
+		frameCount++;
+
+		if (deltaTime >= 1.0) {
+			// Calculate FPS
+			double fps = frameCount / deltaTime;
+
+			// Print FPS
+			std::cout << "FPS: " << fps << std::endl;
+
+			// Reset counters
+			frameCount = 0;
+			lastTime = currentTime;
+		}
 
 		// Unbind VAO
 		glBindVertexArray(0);
@@ -206,7 +293,7 @@ int main() {
 		glfwPollEvents();
 
 		//slow framerate
-		glfwSwapInterval(10000);
+//		glfwSwapInterval(10);
 	}
 
 	// Clean up
