@@ -8,6 +8,8 @@
 #include <cmath>
 #include "glMath.hpp"
 #include "Quaternion.hpp"
+#define STEP 4.0f
+#define SENSITIVITY 0.002f
 
 class Camera {
     private:
@@ -25,6 +27,18 @@ class Camera {
             orientation = rotation * orientation;
         }
 
+		void    rotate_pitch(float pitch) {
+			glm::vec3 axis = glm::normalize(glm::vec3(-1.0f, 0.0f, 0.0f));
+			glm::quat rotation = glm::angleAxis(pitch, axis);
+			orientation = rotation * orientation;
+		}
+
+		void	rotate_yaw(float yaw) {
+			glm::vec3 axis = glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::quat rotation = glm::angleAxis(yaw, axis);
+			orientation = rotation * orientation;
+		}
+
         void    translate(float x, float y, float z) {
             position.x += x;
             position.y += y;
@@ -38,6 +52,20 @@ class Camera {
             glm::mat4 viewMatrix = glm::mat4(rotationMatrix) * translationMatrix;
             return viewMatrix;
         }
+
+        //function that returns the direction vector of the camera
+        glm::vec3 getDirectionVector() {
+            glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
+            direction = glm::normalize(direction * orientation);
+            return direction;
+        }
+
+		glm::vec3 getRightVector() {
+			glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
+			direction = glm::normalize(direction * orientation);
+			return direction;
+		}
+
 };
 
 #endif //BIM_CAMERA_HPP

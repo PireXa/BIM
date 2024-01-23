@@ -1,14 +1,16 @@
 #define GLEW_STATIC
 #include <iostream>
 #include "GLEW/glew.h"
-#include "GLFW/glfw3.h"
+#include "glMath.hpp"
 #include "Camera.hpp"
 #include "Matrix.hpp"
+#include "Input.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <map>
 #include <chrono>
+#include <thread>
 
 const char* vertexShaderSource = R"(
 	#version 330 core
@@ -125,8 +127,6 @@ float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, in
 		char trash;
 		if (!line.compare(0, 2, "f "))
 		{
-//			int f, t1, f1, t2, f2;
-//			iss >> trash >> f >> trash >> t1 >> f1 >> trash >> t2 >> f2;
 			int f, t1, f1, t2, f2;
 			iss >> trash >> f;
 
@@ -148,8 +148,8 @@ float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, in
 			i += 3;
 			//vertex 1 color
 			vertex[i] = 1.0f;
-			vertex[i + 1] = 0.0f;
-			vertex[i + 2] = 0.0f;
+			vertex[i + 1] = 0.85f;
+			vertex[i + 2] = 0.85f;
 			i += 3;
 			//vertex 2 coordinates
 			vertex[i] = vertices[f1 - 1].x;
@@ -157,9 +157,9 @@ float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, in
 			vertex[i + 2] = vertices[f1 - 1].z;
 			i += 3;
 			//vertex 2 color
-			vertex[i] = 0.0f;
+			vertex[i] = 0.85f;
 			vertex[i + 1] = 1.0f;
-			vertex[i + 2] = 0.0f;
+			vertex[i + 2] = 0.85f;
 			i += 3;
 			//vertex 3 coordinates
 			vertex[i] = vertices[f2 - 1].x;
@@ -167,8 +167,8 @@ float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, in
 			vertex[i + 2] = vertices[f2 - 1].z;
 			i += 3;
 			//vertex 3 color
-			vertex[i] = 0.0f;
-			vertex[i + 1] = 0.0f;
+			vertex[i] = 0.85f;
+			vertex[i + 1] = 0.85f;
 			vertex[i + 2] = 1.0f;
 			i += 3;
 			*vertexCount += 3;
@@ -204,10 +204,11 @@ int main() {
 	Camera camera;
 
 	int vertexCount = 0;
-	std::string filename = "..\\Models\\Wolf.obj";
-	std::vector<Vertex> verticesData = readVertices(filename);
+	std::string windows_filename = "..\\Models\\Wolf.obj";
+    std::string debian_filename = "./Models/Wolf.obj";
+	std::vector<Vertex> verticesData = readVertices(debian_filename);
 
-	float *parsedVertices = buildFaces(verticesData, filename, &vertexCount);
+	float *parsedVertices = buildFaces(verticesData, debian_filename, &vertexCount);
 
     // Vertex Buffer Object (VBO)
     GLuint VBO;
@@ -233,14 +234,30 @@ int main() {
 
 	// Unbind VAO and VBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+    glBindVertexArray(0);
 
-	auto lastTime = std::chrono::high_resolution_clock::now();
-	int frameCount = 0;
+    const double targetFrameTime = 1.0f * 1e6 / 60.0f;
+    auto lastFrameTime = std::chrono::high_resolution_clock::now();
+    auto lastFPSTime = std::chrono::high_resolution_clock::now();
+    int frameCount = 0;
+
+    Input input;
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
+	std::cout << Input::lastX << " " << Input::lastY << std::endl;
 
 	while (!glfwWindowShouldClose(window)) {
+		double currentX, currentY;
+		glfwGetCursorPos(window, &currentX, &currentY);
+		std::cout << "Current position:" << std::endl;
+		std::cout << currentX << " " << currentY << std::endl;
+        // Update camera
+//		camera.rotate(0.005f, 0.0f, 1.0f, 0.0f);
 
-		camera.rotate(0.002f, 0.0f, 1.0f, 0.0f);
+        lastFrameTime = std::chrono::high_resolution_clock::now();
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -270,30 +287,41 @@ int main() {
 
 		// FPS calculation
 		auto currentTime = std::chrono::high_resolution_clock::now();
-		double deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastTime).count() / 1e6;
+		double deltaFPSMeasureTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastFPSTime).count();
 		frameCount++;
-
-		if (deltaTime >= 1.0) {
+        double deltaFrameTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastFrameTime).count();
+        std::this_thread::sleep_for(std::chrono::microseconds (static_cast<long long>((targetFrameTime - deltaFrameTime) * 0.7)));
+		if (deltaFPSMeasureTime >= 1e6) {
 			// Calculate FPS
-			double fps = frameCount / deltaTime;
+			double fps = frameCount / deltaFPSMeasureTime * 1e6;
 
 			// Print FPS
 			std::cout << "FPS: " << fps << std::endl;
 
 			// Reset counters
 			frameCount = 0;
-			lastTime = currentTime;
+			lastFPSTime = currentTime;
 		}
 
 		// Unbind VAO
 		glBindVertexArray(0);
 
-		// Swap buffers and poll events
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		// Poll events
+        glfwPollEvents();
+		glfwSetKeyCallback(window, Input::keyCallback);
+		glfwSetCursorPosCallback(window, Input::mouseCallback);
+//		glfwSetCursorPos(window, Input::lastX, Input::lastY);
+        Input::doMovement(window, camera);
+
+		std::cout << "Last position:" << std::endl;
+		glfwGetCursorPos(window, &currentX, &currentY);
+		std::cout << currentX << " " << currentY << std::endl;
+
+        // Swap buffers and poll events
+        glfwSwapBuffers(window);
 
 		//slow framerate
-//		glfwSwapInterval(10);
+//		glfwSwapInterval(100);
 	}
 
 	// Clean up
