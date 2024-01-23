@@ -243,17 +243,13 @@ int main() {
 
     Input input;
 
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-
-	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
-	std::cout << Input::lastX << " " << Input::lastY << std::endl;
+//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+//	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+//
+//	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
+//	std::cout << Input::lastX << " " << Input::lastY << std::endl;
 
 	while (!glfwWindowShouldClose(window)) {
-		double currentX, currentY;
-		glfwGetCursorPos(window, &currentX, &currentY);
-		std::cout << "Current position:" << std::endl;
-		std::cout << currentX << " " << currentY << std::endl;
         // Update camera
 //		camera.rotate(0.005f, 0.0f, 1.0f, 0.0f);
 
@@ -312,10 +308,6 @@ int main() {
 		glfwSetCursorPosCallback(window, Input::mouseCallback);
 //		glfwSetCursorPos(window, Input::lastX, Input::lastY);
         Input::doMovement(window, camera);
-
-		std::cout << "Last position:" << std::endl;
-		glfwGetCursorPos(window, &currentX, &currentY);
-		std::cout << currentX << " " << currentY << std::endl;
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
