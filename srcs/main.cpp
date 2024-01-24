@@ -11,6 +11,7 @@
 #include <map>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 
 const char* vertexShaderSource = R"(
 	#version 330 core
@@ -124,51 +125,57 @@ float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, in
 	while (std::getline(file, line))
 	{
 		std::istringstream iss(line);
-		char trash;
+		char type;
 		if (!line.compare(0, 2, "f "))
 		{
-			int f, t1, f1, t2, f2;
-			iss >> trash >> f;
+			int f1, t1, n1, f2, t2, n2, f3, t3, n3;
 
-			// Check if the line contains texture coordinates
-			if (iss.peek() == '/')
-			{
-				iss >> trash >> t1 >> f1 >> trash >> t2 >> f2;
+			if (line.find('/') == std::string::npos) {
+				// Format 1: f x x x
+				iss >> type >> f1 >> f2 >> f3;
+			} else {
+				// Check the number of '/' occurrences to determine the format
+				int slashCount = std::count(line.begin(), line.end(), '/');
+				if (slashCount / 3 == 2) {
+					// Format 3: f x/1/2 x/3/4 x/5/6
+					iss >> type >> f1 >> type >> t1 >> type >> n1 >> f2 >> type >> t2 >> type >> n2 >> f3 >> type >> t3 >> type >> n3;
+				} else {
+					// Format 2: f x/1 x/2 x/3
+					iss >> type >> f1 >> type >> t1 >> f2 >> type >> t2 >> f3 >> type >> t3;
+				}
 			}
-			else
-			{
-				// If there are no texture coordinates, use default values
-				t1 = t2 = 0;
-				iss >> f1 >> f2;
-			}
+//			std::cout << f1 << " " << f2 << " " << f3 << std::endl;
+//			std::cout << t1 << " " << t2 << " " << t3 << std::endl;
+//			std::cout << n1 << " " << n2 << " " << n3 << std::endl;
+
 			//vertex 1 coordinates
-			vertex[i] = vertices[f - 1].x;
-			vertex[i + 1] = vertices[f - 1].y;
-			vertex[i + 2] = vertices[f - 1].z;
-			i += 3;
-			//vertex 1 color
-			vertex[i] = 1.0f;
-			vertex[i + 1] = 0.85f;
-			vertex[i + 2] = 0.85f;
-			i += 3;
-			//vertex 2 coordinates
 			vertex[i] = vertices[f1 - 1].x;
 			vertex[i + 1] = vertices[f1 - 1].y;
 			vertex[i + 2] = vertices[f1 - 1].z;
 			i += 3;
-			//vertex 2 color
-			vertex[i] = 0.85f;
-			vertex[i + 1] = 1.0f;
-			vertex[i + 2] = 0.85f;
+			//vertex 1 color
+			vertex[i] = 1.0f;
+			vertex[i + 1] = 0.5f;
+			vertex[i + 2] = 0.5f;
 			i += 3;
-			//vertex 3 coordinates
+			//vertex 2 coordinates
 			vertex[i] = vertices[f2 - 1].x;
 			vertex[i + 1] = vertices[f2 - 1].y;
 			vertex[i + 2] = vertices[f2 - 1].z;
 			i += 3;
+			//vertex 2 color
+			vertex[i] = 0.5f;
+			vertex[i + 1] = 1.0f;
+			vertex[i + 2] = 0.5f;
+			i += 3;
+			//vertex 3 coordinates
+			vertex[i] = vertices[f3 - 1].x;
+			vertex[i + 1] = vertices[f3 - 1].y;
+			vertex[i + 2] = vertices[f3 - 1].z;
+			i += 3;
 			//vertex 3 color
-			vertex[i] = 0.85f;
-			vertex[i + 1] = 0.85f;
+			vertex[i] = 0.5f;
+			vertex[i + 1] = 0.5f;
 			vertex[i + 2] = 1.0f;
 			i += 3;
 			*vertexCount += 3;
@@ -199,16 +206,22 @@ int main() {
 	//Enable rendering of only front-facing triangles
 	glEnable(GL_DEPTH_TEST);
 
+	//Vsync 1-on, 0-off
+	glfwSwapInterval(1);
+
+	//Enable culing of back-facing triangles
+//	glEnable(GL_CULL_FACE);
+
 	GLuint shaderProgram = ShaderSetups();
 
 	Camera camera;
 
 	int vertexCount = 0;
-	std::string windows_filename = "..\\Models\\Wolf.obj";
+	std::string windows_filename = "..\\Models\\Porsche_911_GT2.obj";
     std::string debian_filename = "./Models/Wolf.obj";
-	std::vector<Vertex> verticesData = readVertices(debian_filename);
+	std::vector<Vertex> verticesData = readVertices(windows_filename);
 
-	float *parsedVertices = buildFaces(verticesData, debian_filename, &vertexCount);
+	float *parsedVertices = buildFaces(verticesData, windows_filename, &vertexCount);
 
     // Vertex Buffer Object (VBO)
     GLuint VBO;
@@ -236,15 +249,13 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    const double targetFrameTime = 1.0f * 1e6 / 60.0f;
+//    const double targetFrameTime = 1.0f * 1e6 / 60.0f;
     auto lastFrameTime = std::chrono::high_resolution_clock::now();
     auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
 
-    Input input;
-
-//	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-//	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 //
 //	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
 //	std::cout << Input::lastX << " " << Input::lastY << std::endl;
@@ -285,8 +296,8 @@ int main() {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		double deltaFPSMeasureTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastFPSTime).count();
 		frameCount++;
-        double deltaFrameTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastFrameTime).count();
-        std::this_thread::sleep_for(std::chrono::microseconds (static_cast<long long>((targetFrameTime - deltaFrameTime) * 0.7)));
+//        double deltaFrameTime = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - lastFrameTime).count();
+//        std::this_thread::sleep_for(std::chrono::microseconds (static_cast<long long>((targetFrameTime - deltaFrameTime) * 0.7)));
 		if (deltaFPSMeasureTime >= 1e6) {
 			// Calculate FPS
 			double fps = frameCount / deltaFPSMeasureTime * 1e6;
@@ -306,8 +317,9 @@ int main() {
         glfwPollEvents();
 		glfwSetKeyCallback(window, Input::keyCallback);
 		glfwSetCursorPosCallback(window, Input::mouseCallback);
-//		glfwSetCursorPos(window, Input::lastX, Input::lastY);
-        Input::doMovement(window, camera);
+		glfwSetScrollCallback(window, Input::scrollCallback);
+		camera.setMoveSpeed(Input::moveSpeed);
+        Input::doMovement(camera);
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
