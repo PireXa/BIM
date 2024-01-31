@@ -212,10 +212,11 @@ int main() {
 
 	Camera camera;
 
-	const char * windows_filename = "..\\Models\\Wolf.obj";
+	const char * windows_filename = "..\\Models\\18534_Shopping_Cart_v1.obj";
     const char * debian_filename = "./Models/Wolf.obj";
 
 	readOBJ obj(windows_filename);
+	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
 
     // Vertex Buffer Object (VBO)
     GLuint VBO;
