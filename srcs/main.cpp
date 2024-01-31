@@ -5,6 +5,7 @@
 #include "Camera.hpp"
 #include "Matrix.hpp"
 #include "Input.hpp"
+#include "readOBJ.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -71,12 +72,6 @@ GLuint   ShaderSetups() {
 	return shaderProgram;
 }
 
-struct Vertex {
-    float x, y, z;
-//    float u, v; // Texture coordinates
-//    float nx, ny, nz; // Normals
-};
-
 std::vector <Vertex>readVertices(const std::string &filename)
 {
 	std::ifstream file(filename);
@@ -104,7 +99,6 @@ int getFaceCount(const std::string &filename)
 	while (std::getline(file, line))
 	{
 		std::istringstream iss(line);
-		char trash;
 		if (!line.compare(0, 2, "f "))
 		{
 			faceCount++;
@@ -124,6 +118,8 @@ float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, in
 	int i = 0;
 	while (std::getline(file, line))
 	{
+		long long int numberOfVertices= std::count(line.begin(), line.end(), ' ');
+		std::cout << numberOfVertices << std::endl;
 		std::istringstream iss(line);
 		char type;
 		if (!line.compare(0, 2, "f "))
@@ -216,12 +212,10 @@ int main() {
 
 	Camera camera;
 
-	int vertexCount = 0;
-	std::string windows_filename = "..\\Models\\Porsche_911_GT2.obj";
-    std::string debian_filename = "./Models/Wolf.obj";
-	std::vector<Vertex> verticesData = readVertices(windows_filename);
+	const char * windows_filename = "..\\Models\\Wolf.obj";
+    const char * debian_filename = "./Models/Wolf.obj";
 
-	float *parsedVertices = buildFaces(verticesData, windows_filename, &vertexCount);
+	readOBJ obj(windows_filename);
 
     // Vertex Buffer Object (VBO)
     GLuint VBO;
@@ -236,7 +230,7 @@ int main() {
 
 	// Bind VBO and copy vertex data to it
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * vertexCount , parsedVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * obj.getVertexCount() , obj.getVerticesArray(), GL_STATIC_DRAW);
 
 	// Specify vertex attribute pointers and enable them
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -290,7 +284,7 @@ int main() {
 		glBindVertexArray(VAO);
 
 		// Draw the triangle
-		glDrawArrays(GL_TRIANGLES, 0, vertexCount * 3);
+		glDrawArrays(GL_TRIANGLES, 0, obj.getVertexCount());
 
 		// FPS calculation
 		auto currentTime = std::chrono::high_resolution_clock::now();
