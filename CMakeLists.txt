@@ -7,7 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories("${CMAKE_SOURCE_DIR}/include/")
 
 # Your source files
-add_executable(BIM srcs/main.cpp srcs/Input.cpp)
+add_executable(BIM srcs/main.cpp srcs/Input.cpp
+        srcs/readOBJ.cpp
+        srcs/Texture.cpp)
 
 # Link against GLFW static library
 target_link_libraries(BIM PRIVATE "${CMAKE_SOURCE_DIR}/lib/libglew32.a")
