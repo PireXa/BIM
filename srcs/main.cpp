@@ -6,6 +6,7 @@
 #include "Matrix.hpp"
 #include "Input.hpp"
 #include "readOBJ.hpp"
+#include "Texture.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -13,6 +14,7 @@
 #include <chrono>
 #include <thread>
 #include <algorithm>
+#include "Texture.hpp"
 
 const char* vertexShaderSource = R"(
 	#version 330 core
@@ -23,29 +25,36 @@ const char* vertexShaderSource = R"(
     uniform mat4 vp;  // Uniform view-projection matrix
 
 	layout (location = 0) in vec3 position;  // Input: Vertex position
-	layout (location = 1) in vec3 color;     // Input: Vertex color
+	layout (location = 1) in vec3 uv;     // Input: Vertex color
 
-	out vec3 FragColor;  // Output: Fragment color
+	out vec2 FragColor;  // Output: TextCoord for fragment shader
 
 	void main() {
 	    // Transform vertex position to camera space
 		gl_Position = vp * vec4(position, 1.0);
 
+		vec2 texCoord = uv.xy;
 	    // Pass color to the fragment shader
-	    FragColor = color;
+	    FragColor = texCoord;
+		//FragColor = uv; // Pass rgb color to the fragment shader (for classic rainbow effect)
 	}
 )";
 
 const char* fragmentShaderSource = R"(
     #version 330 core
 
-    in vec3 FragColor;  // Input: Vertex color
+    in vec2 FragColor;  // Input: Vertex color (vec3 if using classic rainbow effect)
+
+	uniform sampler2D textureSampler;  // Texture sampler
 
     out vec4 FinalColor;  // Output: Final fragment color
 
     void main() {
+		// Sample the texture using the texture coordinates
+        vec4 texColor = texture(textureSampler, FragColor);
+
         // Output the color directly
-        FinalColor = vec4(FragColor, 1.0);
+        FinalColor = texColor;
     }
 )";
 
@@ -72,115 +81,8 @@ GLuint   ShaderSetups() {
 	return shaderProgram;
 }
 
-std::vector <Vertex>readVertices(const std::string &filename)
-{
-	std::ifstream file(filename);
-	std::string line;
-	std::vector <Vertex> vertices;
-	while (std::getline(file, line))
-	{
-		std::istringstream iss(line);
-		char trash;
-		if (!line.compare(0, 2, "v "))
-		{
-			Vertex v;
-			iss >> trash >> v.x >> v.y >> v.z;
-			vertices.push_back(v);
-		}
-	}
-	return vertices;
-}
-
-int getFaceCount(const std::string &filename)
-{
-	std::ifstream file(filename);
-	std::string line;
-	int faceCount = 0;
-	while (std::getline(file, line))
-	{
-		std::istringstream iss(line);
-		if (!line.compare(0, 2, "f "))
-		{
-			faceCount++;
-		}
-	}
-	return faceCount;
-}
-
-float *buildFaces(std::vector <Vertex> vertices, const std::string &filename, int *vertexCount)
-{
-	std::ifstream file(filename);
-	std::string line;
-	std::vector <Vertex> verticesData = readVertices(filename);
-	int faceCount = getFaceCount(filename);
-//	std::cout << faceCount << std::endl;
-	float *vertex = new float[faceCount * 18];
-	int i = 0;
-	while (std::getline(file, line))
-	{
-		long long int numberOfVertices= std::count(line.begin(), line.end(), ' ');
-		std::cout << numberOfVertices << std::endl;
-		std::istringstream iss(line);
-		char type;
-		if (!line.compare(0, 2, "f "))
-		{
-			int f1, t1, n1, f2, t2, n2, f3, t3, n3;
-
-			if (line.find('/') == std::string::npos) {
-				// Format 1: f x x x
-				iss >> type >> f1 >> f2 >> f3;
-			} else {
-				// Check the number of '/' occurrences to determine the format
-				int slashCount = std::count(line.begin(), line.end(), '/');
-				if (slashCount / 3 == 2) {
-					// Format 3: f x/1/2 x/3/4 x/5/6
-					iss >> type >> f1 >> type >> t1 >> type >> n1 >> f2 >> type >> t2 >> type >> n2 >> f3 >> type >> t3 >> type >> n3;
-				} else {
-					// Format 2: f x/1 x/2 x/3
-					iss >> type >> f1 >> type >> t1 >> f2 >> type >> t2 >> f3 >> type >> t3;
-				}
-			}
-//			std::cout << f1 << " " << f2 << " " << f3 << std::endl;
-//			std::cout << t1 << " " << t2 << " " << t3 << std::endl;
-//			std::cout << n1 << " " << n2 << " " << n3 << std::endl;
-
-			//vertex 1 coordinates
-			vertex[i] = vertices[f1 - 1].x;
-			vertex[i + 1] = vertices[f1 - 1].y;
-			vertex[i + 2] = vertices[f1 - 1].z;
-			i += 3;
-			//vertex 1 color
-			vertex[i] = 1.0f;
-			vertex[i + 1] = 0.5f;
-			vertex[i + 2] = 0.5f;
-			i += 3;
-			//vertex 2 coordinates
-			vertex[i] = vertices[f2 - 1].x;
-			vertex[i + 1] = vertices[f2 - 1].y;
-			vertex[i + 2] = vertices[f2 - 1].z;
-			i += 3;
-			//vertex 2 color
-			vertex[i] = 0.5f;
-			vertex[i + 1] = 1.0f;
-			vertex[i + 2] = 0.5f;
-			i += 3;
-			//vertex 3 coordinates
-			vertex[i] = vertices[f3 - 1].x;
-			vertex[i + 1] = vertices[f3 - 1].y;
-			vertex[i + 2] = vertices[f3 - 1].z;
-			i += 3;
-			//vertex 3 color
-			vertex[i] = 0.5f;
-			vertex[i + 1] = 0.5f;
-			vertex[i + 2] = 1.0f;
-			i += 3;
-			*vertexCount += 3;
-		}
-	}
-	return vertex;
-}
-
 int main() {
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -212,13 +114,24 @@ int main() {
 
 	Camera camera;
 
-	const char * windows_filename = "..\\Models\\18534_Shopping_Cart_v1.obj";
+	const char * windows_filename = "..\\Models\\test.obj";
     const char * debian_filename = "./Models/Wolf.obj";
 
 	readOBJ obj(windows_filename);
 	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
 
-    // Vertex Buffer Object (VBO)
+	Texture texture("..\\Models\\sunset.bmp");
+	glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
+
+
+
+	// Vertex Buffer Object (VBO)
     GLuint VBO;
     glGenBuffers(1, &VBO);
 
@@ -256,10 +169,8 @@ int main() {
 //	std::cout << Input::lastX << " " << Input::lastY << std::endl;
 
 	while (!glfwWindowShouldClose(window)) {
-        // Update camera
-//		camera.rotate(0.005f, 0.0f, 1.0f, 0.0f);
 
-        lastFrameTime = std::chrono::high_resolution_clock::now();
+//        lastFrameTime = std::chrono::high_resolution_clock::now();
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
