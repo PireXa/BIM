@@ -16,6 +16,7 @@ class readOBJ {
 	private:
 		const char *filename;
 		std::vector<Vertex> vertices;
+		std::vector<UV> uvs;
 		float *verticesArray;
 		int verticesArraySize;
 		int faceCount;

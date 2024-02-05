@@ -14,8 +14,16 @@
 
 struct Vertex {
 	float x, y, z;
-//    float u, v; // Texture coordinates
+    float u, v; // Texture coordinates
 //    float nx, ny, nz; // Normals
+};
+
+struct Pixel {
+	unsigned char r, g, b;
+};
+
+struct UV {
+	float u, v;
 };
 
 #endif //BIM_GLMATH_HPP
