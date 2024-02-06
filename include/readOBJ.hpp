@@ -31,6 +31,7 @@ class readOBJ {
 		int getVerticesArraySize();
 		int getVertexCount();
 		int getFaceCount();
+		int getuvCount();
 		void readVertices();
 		void    readFaces();
 };

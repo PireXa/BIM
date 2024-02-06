@@ -8,7 +8,7 @@
 #include <cmath>
 #include "glMath.hpp"
 #include "Quaternion.hpp"
-#define SENSITIVITY 0.001f
+#define SENSITIVITY 0.0009f
 
 class Camera {
     private:
