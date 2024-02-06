@@ -19,9 +19,9 @@
 const char* vertexShaderSource = R"(
 	#version 330 core
 
-	uniform mat4 view;  // Uniform view matrix
-	uniform mat4 model;  // Uniform model matrix
-	uniform mat4 projection;  // Uniform projection matrix
+//	uniform mat4 view;  // Uniform view matrix
+//	uniform mat4 model;  // Uniform model matrix
+//	uniform mat4 projection;  // Uniform projection matrix
     uniform mat4 vp;  // Uniform view-projection matrix
 
 	layout (location = 0) in vec3 position;  // Input: Vertex position
@@ -114,13 +114,14 @@ int main() {
 
 	Camera camera;
 
-	const char * windows_filename = "..\\Models\\test.obj";
+	const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
     const char * debian_filename = "./Models/Wolf.obj";
 
 	readOBJ obj(windows_filename);
 	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
+	std::cout << "vt count: " << obj.getuvCount() << std::endl;
 
-	Texture texture("..\\Models\\sunset.bmp");
+	Texture texture("..\\Models\\pattern6.bmp");
 	glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

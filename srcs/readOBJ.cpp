@@ -24,6 +24,10 @@ int readOBJ::getVertexCount() {
 	return vertexCount;
 }
 
+int readOBJ::getuvCount() {
+	return uvs.size();
+}
+
 long long int getNumberOfVertices(const std::string &line)
 {
 	long long int numberOfVertices = 0;
@@ -111,12 +115,21 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
 				//vertex 1 color
-//				verticesArray[i] = 1.0f;
-//				verticesArray[i + 1] = 0.5f;
-//				verticesArray[i + 2] = 0.5f;
-				verticesArray[i] = uvs[t1 - 1].u;
-				verticesArray[i + 1] = uvs[t1 - 1].v;
-				verticesArray[i + 2] = 0;
+				//verticesArray[i] = 1.0f;
+				//verticesArray[i + 1] = 0.5f;
+				//verticesArray[i + 2] = 0.5f;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t1 - 1].u;
+					verticesArray[i + 1] = uvs[t1 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 0.0f;
+					verticesArray[i + 1] = 0.0f;
+					verticesArray[i + 2] = 0.0f;
+				}
 				i += 3;
 				//vertex 2 coordinates
 				verticesArray[i] = vertices[f2 - 1].x;
@@ -124,12 +137,21 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f2 - 1].z;
 				i += 3;
 				//vertex 2 color
-//				verticesArray[i] = 0.5f;
-//				verticesArray[i + 1] = 1.0f;
-//				verticesArray[i + 2] = 0.5f;
-				verticesArray[i] = uvs[t2 - 1].u;
-				verticesArray[i + 1] = uvs[t2 - 1].v;
-				verticesArray[i + 2] = 0;
+				//verticesArray[i] = 0.5f;
+				//verticesArray[i + 1] = 1.0f;
+				//verticesArray[i + 2] = 0.5f;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t2 - 1].u;
+					verticesArray[i + 1] = uvs[t2 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 0.5f;
+					verticesArray[i + 1] = 1.0f;
+					verticesArray[i + 2] = 0.0f;
+				}
 				i += 3;
 				//vertex 3 coordinates
 				verticesArray[i] = vertices[f3 - 1].x;
@@ -137,12 +159,21 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
 				//vertex 3 color
-//				verticesArray[i] = 0.5f;
-//				verticesArray[i + 1] = 0.5f;
-//				verticesArray[i + 2] = 1.0f;
-				verticesArray[i] = uvs[t3 - 1].u;
-				verticesArray[i + 1] = uvs[t3 - 1].v;
-				verticesArray[i + 2] = 0;
+				//verticesArray[i] = 0.5f;
+				//verticesArray[i + 1] = 0.5f;
+				//verticesArray[i + 2] = 1.0f;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t3 - 1].u;
+					verticesArray[i + 1] = uvs[t3 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 1.0f;
+					verticesArray[i + 1] = 0.0f;
+					verticesArray[i + 2] = 0.0f;
+				}
 				i += 3;
 				this->vertexCount += 3;
 			}
@@ -170,12 +201,18 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
 				//vertex 1 color
-//				verticesArray[i] = 1.0f;
-//				verticesArray[i + 1] = 0.5f;
-//				verticesArray[i + 2] = 0.5f;
-				verticesArray[i] = uvs[t1 - 1].u;
-				verticesArray[i + 1] = uvs[t1 - 1].v;
-				verticesArray[i + 2] = 0;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t1 - 1].u;
+					verticesArray[i + 1] = uvs[t1 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 1.0f;
+					verticesArray[i + 1] = 0.5f;
+					verticesArray[i + 2] = 0.5f;
+				}
 				i += 3;
 				//vertex 2 coordinates
 				verticesArray[i] = vertices[f2 - 1].x;
@@ -183,12 +220,18 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f2 - 1].z;
 				i += 3;
 				//vertex 2 color
-//				verticesArray[i] = 0.5f;
-//				verticesArray[i + 1] = 1.0f;
-//				verticesArray[i + 2] = 0.5f;
-				verticesArray[i] = uvs[t2 - 1].u;
-				verticesArray[i + 1] = uvs[t2 - 1].v;
-				verticesArray[i + 2] = 0;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t2 - 1].u;
+					verticesArray[i + 1] = uvs[t2 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 0.5f;
+					verticesArray[i + 1] = 1.0f;
+					verticesArray[i + 2] = 0.5f;
+				}
 				i += 3;
 				//vertex 3 coordinates
 				verticesArray[i] = vertices[f3 - 1].x;
@@ -196,12 +239,18 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
 				//vertex 3 color
-//				verticesArray[i] = 0.5f;
-//				verticesArray[i + 1] = 0.5f;
-//				verticesArray[i + 2] = 1.0f;
-				verticesArray[i] = uvs[t3 - 1].u;
-				verticesArray[i + 1] = uvs[t3 - 1].v;
-				verticesArray[i + 2] = 0;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t3 - 1].u;
+					verticesArray[i + 1] = uvs[t3 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 0.5f;
+					verticesArray[i + 1] = 0.5f;
+					verticesArray[i + 2] = 1.0f;
+				}
 				i += 3;
 				//vertex 4 coordinates
 				verticesArray[i] = vertices[f4 - 1].x;
@@ -209,12 +258,18 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f4 - 1].z;
 				i += 3;
 				//vertex 4 color
-//				verticesArray[i] = 1.0f;
-//				verticesArray[i + 1] = 0.5f;
-//				verticesArray[i + 2] = 0.5f;
-				verticesArray[i] = uvs[t4 - 1].u;
-				verticesArray[i + 1] = uvs[t4 - 1].v;
-				verticesArray[i + 2] = 0;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t4 - 1].u;
+					verticesArray[i + 1] = uvs[t4 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 0.5f;
+					verticesArray[i + 1] = 1.0f;
+					verticesArray[i + 2] = 0.5f;
+				}
 				i += 3;
 				//vertex 5 coordinates
 				verticesArray[i] = vertices[f1 - 1].x;
@@ -222,12 +277,18 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
 				//vertex 5 color
-//				verticesArray[i] = 0.5f;
-//				verticesArray[i + 1] = 1.0f;
-//				verticesArray[i + 2] = 0.5f;
-				verticesArray[i] = uvs[t1 - 1].u;
-				verticesArray[i + 1] = uvs[t1 - 1].v;
-				verticesArray[i + 2] = 0;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t1 - 1].u;
+					verticesArray[i + 1] = uvs[t1 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 1.0f;
+					verticesArray[i + 1] = 0.5f;
+					verticesArray[i + 2] = 0.5f;
+				}
 				i += 3;
 				//vertex 6 coordinates
 				verticesArray[i] = vertices[f3 - 1].x;
@@ -235,12 +296,18 @@ void    readOBJ::readFaces()
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
 				//vertex 6 color
-//				verticesArray[i] = 0.5f;
-//				verticesArray[i + 1] = 0.5f;
-//				verticesArray[i + 2] = 1.0f;
-				verticesArray[i] = uvs[t3 - 1].u;
-				verticesArray[i + 1] = uvs[t3 - 1].v;
-				verticesArray[i + 2] = 0;
+				if (!uvs.empty())
+				{
+					verticesArray[i] = uvs[t3 - 1].u;
+					verticesArray[i + 1] = uvs[t3 - 1].v;
+					verticesArray[i + 2] = 0;
+				}
+				else
+				{
+					verticesArray[i] = 0.5f;
+					verticesArray[i + 1] = 0.5f;
+					verticesArray[i + 2] = 1.0f;
+				}
 				i += 3;
 				this->vertexCount += 6;
 			}
