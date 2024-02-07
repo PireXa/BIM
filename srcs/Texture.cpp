@@ -12,8 +12,8 @@ Texture::Texture(const char *path) : path(path) {
 
 Texture::~Texture() = default;
 
-unsigned int Texture::getTextureID() {
-	return textureID;
+unsigned int *Texture::getTextureID() {
+	return &textureID;
 }
 
 int Texture::getWidth() {

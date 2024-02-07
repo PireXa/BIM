@@ -115,22 +115,23 @@ int main() {
 	Camera camera;
 
 	const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
-    const char * debian_filename = "./Models/Wolf.obj";
+    const char * debian_filename = "./Models/42.obj";
 
-	readOBJ obj(windows_filename);
+	readOBJ obj(debian_filename);
+    if (obj.getuvCount() == 0)
+        obj.PlanarMapping();
 	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
 	std::cout << "vt count: " << obj.getuvCount() << std::endl;
 
-	Texture texture("..\\Models\\pattern6.bmp");
-	glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+	Texture texture("./Models/pattern5.bmp");
+    glGenTextures(1, texture.getTextureID());
+	glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
-
-
 
 	// Vertex Buffer Object (VBO)
     GLuint VBO;

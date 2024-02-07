@@ -114,7 +114,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f1 - 1].y;
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
-				//vertex 1 color
+				//vertex 1 texture coordinates
 				//verticesArray[i] = 1.0f;
 				//verticesArray[i + 1] = 0.5f;
 				//verticesArray[i + 2] = 0.5f;
@@ -136,7 +136,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f2 - 1].y;
 				verticesArray[i + 2] = vertices[f2 - 1].z;
 				i += 3;
-				//vertex 2 color
+				//vertex 2 texture coordinates
 				//verticesArray[i] = 0.5f;
 				//verticesArray[i + 1] = 1.0f;
 				//verticesArray[i + 2] = 0.5f;
@@ -158,7 +158,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f3 - 1].y;
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
-				//vertex 3 color
+				//vertex 3 texture coordinates
 				//verticesArray[i] = 0.5f;
 				//verticesArray[i + 1] = 0.5f;
 				//verticesArray[i + 2] = 1.0f;
@@ -176,6 +176,7 @@ void    readOBJ::readFaces()
 				}
 				i += 3;
 				this->vertexCount += 3;
+                this->verticesArraySize += 18;
 			}
 			else
 			{
@@ -200,7 +201,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f1 - 1].y;
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
-				//vertex 1 color
+				//vertex 1 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t1 - 1].u;
@@ -209,9 +210,9 @@ void    readOBJ::readFaces()
 				}
 				else
 				{
-					verticesArray[i] = 1.0f;
-					verticesArray[i + 1] = 0.5f;
-					verticesArray[i + 2] = 0.5f;
+					verticesArray[i] = 0.0f;
+					verticesArray[i + 1] = 0.0f;
+					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
 				//vertex 2 coordinates
@@ -219,7 +220,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f2 - 1].y;
 				verticesArray[i + 2] = vertices[f2 - 1].z;
 				i += 3;
-				//vertex 2 color
+				//vertex 2 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t2 - 1].u;
@@ -228,9 +229,9 @@ void    readOBJ::readFaces()
 				}
 				else
 				{
-					verticesArray[i] = 0.5f;
-					verticesArray[i + 1] = 1.0f;
-					verticesArray[i + 2] = 0.5f;
+					verticesArray[i] = 1.0f;
+					verticesArray[i + 1] = 0.0f;
+					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
 				//vertex 3 coordinates
@@ -238,7 +239,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f3 - 1].y;
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
-				//vertex 3 color
+				//vertex 3 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t3 - 1].u;
@@ -247,9 +248,9 @@ void    readOBJ::readFaces()
 				}
 				else
 				{
-					verticesArray[i] = 0.5f;
-					verticesArray[i + 1] = 0.5f;
-					verticesArray[i + 2] = 1.0f;
+					verticesArray[i] = 1.0f;
+					verticesArray[i + 1] = 1.0f;
+					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
 				//vertex 4 coordinates
@@ -257,7 +258,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f4 - 1].y;
 				verticesArray[i + 2] = vertices[f4 - 1].z;
 				i += 3;
-				//vertex 4 color
+				//vertex 4 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t4 - 1].u;
@@ -276,7 +277,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f1 - 1].y;
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
-				//vertex 5 color
+				//vertex 5 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t1 - 1].u;
@@ -295,7 +296,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f3 - 1].y;
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
-				//vertex 6 color
+				//vertex 6 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t3 - 1].u;
@@ -310,7 +311,64 @@ void    readOBJ::readFaces()
 				}
 				i += 3;
 				this->vertexCount += 6;
+                this->verticesArraySize += 36;
 			}
 		}
 	}
+}
+
+// verticesArray    vertex1 x, vertex1 y, vertex1 z, vertex1 u, vertex1 v, vertex1 w
+
+void    readOBJ::PlanarMapping()
+{
+    std::cout << this->vertexCount << std::endl;
+    std::cout << this->verticesArraySize << std::endl;
+    float resolution = 0.5;
+    for (int i = 0; i < this->verticesArraySize; i += 18)
+    {
+        Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
+        Vertex v2 = {verticesArray[i + 6], verticesArray[i + 7], verticesArray[i + 8]};
+        Vertex v3 = {verticesArray[i + 12], verticesArray[i + 13], verticesArray[i + 14]};
+
+        glm::vec3 edge1 = glm::vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
+        glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
+        glm::vec3 normal = glm::cross(edge1, edge2);
+        normal = glm::normalize(normal);
+        if (normal.x > normal.y && normal.x > normal.z)
+        {
+            verticesArray[i + 3] = v1.y * resolution;
+            verticesArray[i + 4] = v1.z * resolution;
+            verticesArray[i + 5] = 0;
+            verticesArray[i + 9] = v2.y * resolution;
+            verticesArray[i + 10] = v2.z * resolution;
+            verticesArray[i + 11] = 0;
+            verticesArray[i + 15] = v3.y * resolution;
+            verticesArray[i + 16] = v3.z * resolution;
+            verticesArray[i + 17] = 0;
+        }
+        else if (normal.y > normal.x && normal.y > normal.z)
+        {
+            verticesArray[i + 3] = v1.x * resolution;
+            verticesArray[i + 4] = v1.z * resolution;
+            verticesArray[i + 5] = 0;
+            verticesArray[i + 9] = v2.x * resolution;
+            verticesArray[i + 10] = v2.z * resolution;
+            verticesArray[i + 11] = 0;
+            verticesArray[i + 15] = v3.x * resolution;
+            verticesArray[i + 16] = v3.z * resolution;
+            verticesArray[i + 17] = 0;
+        }
+        else
+        {
+            verticesArray[i + 3] = v1.x * resolution;
+            verticesArray[i + 4] = v1.y * resolution;
+            verticesArray[i + 5] = 0;
+            verticesArray[i + 9] = v2.x * resolution;
+            verticesArray[i + 10] = v2.y * resolution;
+            verticesArray[i + 11] = 0;
+            verticesArray[i + 15] = v3.x * resolution;
+            verticesArray[i + 16] = v3.y * resolution;
+            verticesArray[i + 17] = 0;
+        }
+    }
 }
