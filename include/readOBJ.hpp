@@ -32,8 +32,9 @@ class readOBJ {
 		int getVertexCount();
 		int getFaceCount();
 		int getuvCount();
-		void readVertices();
+		void    readVertices();
 		void    readFaces();
+        void    PlanarMapping();
 };
 
 #endif //BIM_READOBJ_HPP

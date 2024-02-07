@@ -19,7 +19,7 @@ class Texture {
 	public:
 		Texture(const char *path);
 		~Texture();
-		unsigned int getTextureID();
+		unsigned int *getTextureID();
 		int getWidth();
 		int getHeight();
 		int getNrChannels();
