@@ -7,6 +7,7 @@
 #include "Input.hpp"
 #include "readOBJ.hpp"
 #include "Texture.hpp"
+#include "Model.hpp"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -113,23 +114,31 @@ int main() {
 	GLuint shaderProgram = ShaderSetups();
 
 	Camera camera;
+    Model model;
 
 	const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
     const char * debian_filename = "./Models/42.obj";
 
 	readOBJ obj(debian_filename);
     if (obj.getuvCount() == 0)
+    {
+        std::cout << "No uv coordinates found, planar mapping will be used" << std::endl;
         obj.PlanarMapping();
+    }
 	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
 	std::cout << "vt count: " << obj.getuvCount() << std::endl;
 
-	Texture texture("./Models/pattern5.bmp");
+	Texture texture("./Models/zebra.bmp");
     glGenTextures(1, texture.getTextureID());
 	glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
 
@@ -184,10 +193,12 @@ int main() {
         // Set up the projection matrix (you might do this once in your initialization)
         glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
                                                       800.0f / 600.0f,          // Aspect ratio
-                                                      0.1f, 600.0f);        // Near and far planes
+                                                      0.1f, 1000.0f);        // Near and far planes
+
+        glm::mat4 modelMatrix = model.getModelMatrix();
 
         // Combine the view matrix and projection matrix to get the final MVP matrix
-        glm::mat4 mvpMatrix = projectionMatrix * viewMatrix;
+        glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
         // Pass the MVP matrix to the shader
         GLint mvpMatrixLoc = glGetUniformLocation(shaderProgram, "vp");
@@ -227,7 +238,7 @@ int main() {
 		glfwSetCursorPosCallback(window, Input::mouseCallback);
 		glfwSetScrollCallback(window, Input::scrollCallback);
 		camera.setMoveSpeed(Input::moveSpeed);
-        Input::doMovement(camera);
+        Input::doMovement(camera, model);
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);

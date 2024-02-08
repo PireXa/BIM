@@ -52,23 +52,47 @@ void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset
 		Input::moveSpeed = 0.02f;
 }
 
-void    Input::doMovement(Camera &camera) {
-    if (Input::keys[GLFW_KEY_W] || Input::keys[GLFW_KEY_UP]) {
+void    Input::doMovement(Camera &camera, Model &model) {
+    if (Input::keys[GLFW_KEY_W]) {
         glm::vec3 direction = camera.getDirectionVector();
         camera.translate(direction.x * camera.getMoveSpeed(), direction.y * camera.getMoveSpeed(), direction.z * camera.getMoveSpeed());
     }
-    if (Input::keys[GLFW_KEY_S] || Input::keys[GLFW_KEY_DOWN]) {
+    if (Input::keys[GLFW_KEY_S]) {
         glm::vec3 direction = camera.getDirectionVector();
         camera.translate(-direction.x * camera.getMoveSpeed(), -direction.y * camera.getMoveSpeed(), -direction.z * camera.getMoveSpeed());
     }
-    if (Input::keys[GLFW_KEY_A] || Input::keys[GLFW_KEY_LEFT]) {
+    if (Input::keys[GLFW_KEY_A]) {
 		glm::vec3 right = camera.getRightVector();
 		camera.translate(-right.x * camera.getMoveSpeed(), -right.y * camera.getMoveSpeed(), -right.z * camera.getMoveSpeed());
 	}
-    if (Input::keys[GLFW_KEY_D] || Input::keys[GLFW_KEY_RIGHT]) {
+    if (Input::keys[GLFW_KEY_D]) {
 		glm::vec3 right = camera.getRightVector();
 		camera.translate(right.x * camera.getMoveSpeed(), right.y * camera.getMoveSpeed(), right.z * camera.getMoveSpeed());
 	}
+    if (Input::keys[GLFW_KEY_SPACE]) {
+        camera.translate(0.0f, camera.getMoveSpeed(), 0.0f);
+    }
+    if (Input::keys[GLFW_KEY_LEFT_SHIFT]) {
+        camera.translate(0.0f, -camera.getMoveSpeed(), 0.0f);
+    }
+    if (Input::keys[GLFW_KEY_LEFT]) {
+        model.rotate(0.1f, 0.0f, 1.0f, 0.0f);
+    }
+    if (Input::keys[GLFW_KEY_RIGHT]) {
+        model.rotate(-0.1f, 0.0f, 1.0f, 0.0f);
+    }
+    if (Input::keys[GLFW_KEY_UP]) {
+        model.rotate(0.1f, 1.0f, 0.0f, 0.0f);
+    }
+    if (Input::keys[GLFW_KEY_DOWN]) {
+        model.rotate(-0.1f, 1.0f, 0.0f, 0.0f);
+    }
+    if (Input::keys[GLFW_KEY_I]) {
+        model.translate(0.0f, 0.0f, 1.0f);
+    }
+    if (Input::keys[GLFW_KEY_K]) {
+        model.translate(0.0f, 0.0f, -1.0f);
+    }
 	if (Input::pitch != 0.0f)
 	{
 		camera.rotate_pitch(Input::pitch);

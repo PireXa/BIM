@@ -186,14 +186,18 @@ void    readOBJ::readFaces()
 				} else {
 					// Check the number of '/' occurrences to determine the format
 					long long int slashCount = std::count(line.begin(), line.end(), '/');
-					if (slashCount / 3 == 2) {
+                    int noTexture = line.find("//");
+					if (slashCount / 4 == 2 && noTexture == std::string::npos) {
 						// Format 3: f x/1/2 x/3/4 x/5/6
 						iss >> type >> f1 >> type >> t1 >> type >> n1 >> f2 >> type >> t2 >> type >> n2 >> f3 >> type
 						    >> t3 >> type >> n3 >> f4 >> type >> t4 >> type >> n4;
-					} else {
+					} else if (slashCount / 4 == 1) {
 						// Format 2: f x/1 x/2 x/3
 						iss >> type >> f1 >> type >> t1 >> f2 >> type >> t2 >> f3 >> type >> t3 >> f4 >> type >> t4;
-					}
+					} else {
+                        // Format 2: f x//1 x//2 x//3
+                        iss >> type >> f1 >> type >> type >> n1 >> f2 >> type >> type >> n2 >> f3 >> type >> type >> n3 >> f4 >> type >> type >> n4;
+                    }
 				}
 //				std::cout << f1 << " " << f2 << " " << f3 << " " << f4 << std::endl;
 				//vertex 1 coordinates
@@ -321,9 +325,7 @@ void    readOBJ::readFaces()
 
 void    readOBJ::PlanarMapping()
 {
-    std::cout << this->vertexCount << std::endl;
-    std::cout << this->verticesArraySize << std::endl;
-    float resolution = 0.5;
+    float resolution = 0.2;
     for (int i = 0; i < this->verticesArraySize; i += 18)
     {
         Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
@@ -334,6 +336,9 @@ void    readOBJ::PlanarMapping()
         glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
         glm::vec3 normal = glm::cross(edge1, edge2);
         normal = glm::normalize(normal);
+        normal.x = fabs(normal.x);
+        normal.y = fabs(normal.y);
+        normal.z = fabs(normal.z);
         if (normal.x > normal.y && normal.x > normal.z)
         {
             verticesArray[i + 3] = v1.y * resolution;
