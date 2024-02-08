@@ -53,12 +53,11 @@ class Camera {
 			orientation = glm::normalize(orientation);
 		}
 
-
 		void    translate(float x, float y, float z) {
-	            position.x += x;
-	            position.y += y;
-	            position.z += z;
-	        }
+            position.x += x;
+            position.y += y;
+            position.z += z;
+        }
 
         glm::mat4   getViewMatrix()
         {

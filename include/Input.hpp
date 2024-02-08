@@ -8,6 +8,7 @@
 #include <iostream>
 #include "glMath.hpp"
 #include "Camera.hpp"
+#include "Model.hpp"
 
 class Input {
     public:
@@ -22,7 +23,7 @@ class Input {
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
         static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
         static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-        static void doMovement(Camera &camera);
+        static void doMovement(Camera &camera, Model &model);
 };
 
 #endif //BIM_INPUT_HPP
