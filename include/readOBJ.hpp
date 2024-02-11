@@ -21,10 +21,12 @@ class readOBJ {
 		int verticesArraySize;
 		int faceCount;
 		int vertexCount;
+        glm::vec3 center;
 	public:
 		readOBJ(const char *filename) : filename(filename) {
 			readVertices();
 			readFaces();
+            CalculateCenter();
 		}
 		~readOBJ();
 		float *getVerticesArray();
@@ -32,9 +34,11 @@ class readOBJ {
 		int getVertexCount();
 		int getFaceCount();
 		int getuvCount();
+        glm::vec3 getCenter();
 		void    readVertices();
 		void    readFaces();
         void    PlanarMapping();
+        void    CalculateCenter();
 };
 
 #endif //BIM_READOBJ_HPP

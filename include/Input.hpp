@@ -15,8 +15,10 @@ class Input {
         static bool keys[1024];
         static double lastX;
         static double lastY;
-        static float yaw;
-        static float pitch;
+        static float camera_yaw;
+        static float camera_pitch;
+        static float model_yaw;
+        static float model_pitch;
         static float fov;
 		static float moveSpeed;
 
