@@ -7,8 +7,10 @@
 bool Input::keys[1024] = {false};
 double Input::lastX = 400.0f;
 double Input::lastY = 300.0f;
-float Input::yaw = 0.0f;
-float Input::pitch = 0.0f;
+float Input::camera_yaw = 0.0f;
+float Input::camera_pitch = 0.0f;
+float Input::model_yaw = 0.0f;
+float Input::model_pitch = 0.0f;
 float Input::fov = 45.0f;
 float Input::moveSpeed = 0.5f;
 
@@ -17,7 +19,9 @@ void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
         if (action == GLFW_PRESS)
+        {
             Input::keys[key] = true;
+        }
         else if (action == GLFW_RELEASE) {
 			Input::keys[key] = false;
         }
@@ -33,17 +37,33 @@ void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	xoffset *= SENSITIVITY;
 	yoffset *= SENSITIVITY;
 
-	Input::yaw += xoffset;
-	Input::pitch += yoffset;
+    if (!Input::keys[GLFW_KEY_LEFT_ALT])
+    {
+        Input::camera_yaw += xoffset;
+        Input::camera_pitch += yoffset;
+    }
+    else
+    {
+        Input::model_yaw += xoffset;
+        Input::model_pitch += yoffset;
+    }
 
-	if (Input::pitch > 89.0f)
-		Input::pitch = 89.0f;
-	if (Input::pitch < -89.0f)
-		Input::pitch = -89.0f;
-	if (Input::yaw > 360.0f)
-		Input::yaw -= 360.0f;
-	if (Input::yaw < -360.0f)
-		Input::yaw += 360.0f;
+	if (Input::camera_pitch > 89.0f)
+		Input::camera_pitch = 89.0f;
+	if (Input::camera_pitch < -89.0f)
+		Input::camera_pitch = -89.0f;
+	if (Input::camera_yaw > 360.0f)
+		Input::camera_yaw -= 360.0f;
+	if (Input::camera_yaw < -360.0f)
+		Input::camera_yaw += 360.0f;
+    if (Input::model_pitch > 89.0f)
+        Input::model_pitch = 89.0f;
+    if (Input::model_pitch < -89.0f)
+        Input::model_pitch = -89.0f;
+    if (Input::model_yaw > 360.0f)
+        Input::model_yaw -= 360.0f;
+    if (Input::model_yaw < -360.0f)
+        Input::model_yaw += 360.0f;
 }
 
 void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -88,19 +108,29 @@ void    Input::doMovement(Camera &camera, Model &model) {
         model.rotate(-0.1f, 1.0f, 0.0f, 0.0f);
     }
     if (Input::keys[GLFW_KEY_I]) {
-        model.translate(0.0f, 0.0f, 1.0f);
+        model.translate(0.0f, 0.0f, 0.2f);
     }
     if (Input::keys[GLFW_KEY_K]) {
-        model.translate(0.0f, 0.0f, -1.0f);
+        model.translate(0.0f, 0.0f, -0.2f);
     }
-	if (Input::pitch != 0.0f)
+	if (Input::camera_pitch != 0.0f)
 	{
-		camera.rotate_pitch(Input::pitch);
-		Input::pitch = 0.0f;
+		camera.rotate_pitch(Input::camera_pitch);
+		Input::camera_pitch = 0.0f;
 	}
-	if (Input::yaw != 0.0f)
+	if (Input::camera_yaw != 0.0f)
 	{
-		camera.rotate_yaw(Input::yaw);
-		Input::yaw = 0.0f;
+		camera.rotate_yaw(Input::camera_yaw);
+		Input::camera_yaw = 0.0f;
 	}
+    if (Input::model_pitch != 0.0f) {
+        glm::vec3 right = camera.getRightVector();
+        model.rotate(-Input::model_pitch, right.x, right.y, right.z);
+        Input::model_pitch = 0.0f;
+    }
+    if (Input::model_yaw != 0.0f) {
+        glm::vec3 up = glm::cross(camera.getRightVector(), camera.getDirectionVector());
+        model.rotate(Input::model_yaw, up.x, up.y, up.z);
+        Input::model_yaw = 0.0f;
+    }
 }

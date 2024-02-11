@@ -28,6 +28,24 @@ int readOBJ::getuvCount() {
 	return uvs.size();
 }
 
+glm::vec3 readOBJ::getCenter() {
+    return center;
+}
+
+void    readOBJ::CalculateCenter()
+{
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    for (int i = 0; i < this->vertices.size(); i++)
+    {
+        x += this->vertices[i].x;
+        y += this->vertices[i].y;
+        z += this->vertices[i].z;
+    }
+    this->center = glm::vec3(x / this->vertices.size(), y / this->vertices.size(), z / this->vertices.size());
+}
+
 long long int getNumberOfVertices(const std::string &line)
 {
 	long long int numberOfVertices = 0;
@@ -45,6 +63,11 @@ long long int getNumberOfVertices(const std::string &line)
 void    readOBJ::readVertices()
 {
 	std::ifstream file(this->filename);
+    if (!file.is_open())
+    {
+        std::cout << "Error: Could not open file: " << this->filename << std::endl;
+        return;
+    }
 	std::string line;
 	while (std::getline(file, line))
 	{
@@ -325,7 +348,7 @@ void    readOBJ::readFaces()
 
 void    readOBJ::PlanarMapping()
 {
-    float resolution = 0.2;
+    float resolution = 0.3;
     for (int i = 0; i < this->verticesArraySize; i += 18)
     {
         Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};

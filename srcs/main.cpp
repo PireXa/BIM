@@ -117,16 +117,16 @@ int main() {
     Model model;
 
 	const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
-    const char * debian_filename = "./Models/42.obj";
+    const char * debian_filename = "./Models/teapot.obj";
 
 	readOBJ obj(debian_filename);
+    model.setCenter(obj.getCenter());
     if (obj.getuvCount() == 0)
     {
-        std::cout << "No uv coordinates found, planar mapping will be used" << std::endl;
+//        std::cout << "No uv coordinates found, planar mapping will be used" << std::endl;
         obj.PlanarMapping();
     }
 	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
-	std::cout << "vt count: " << obj.getuvCount() << std::endl;
 
 	Texture texture("./Models/zebra.bmp");
     glGenTextures(1, texture.getTextureID());
@@ -135,11 +135,6 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
 
 	// Vertex Buffer Object (VBO)
@@ -179,6 +174,7 @@ int main() {
 //	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
 //	std::cout << Input::lastX << " " << Input::lastY << std::endl;
 
+    std::cout << "Monitor refresh rate: " << glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate << " Hz" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
 
 //        lastFrameTime = std::chrono::high_resolution_clock::now();
