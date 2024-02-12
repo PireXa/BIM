@@ -95,6 +95,12 @@ void    Input::doMovement(Camera &camera, Model &model) {
     if (Input::keys[GLFW_KEY_LEFT_SHIFT]) {
         camera.translate(0.0f, -camera.getMoveSpeed(), 0.0f);
     }
+    if (Input::keys[GLFW_KEY_R]) {
+        camera.lookAt(model.getCenter());
+    }
+    if (Input::keys[GLFW_KEY_T]) {
+        camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+    }
     if (Input::keys[GLFW_KEY_LEFT]) {
         model.rotate(0.1f, 0.0f, 1.0f, 0.0f);
     }

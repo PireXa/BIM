@@ -16,6 +16,7 @@
 #include <thread>
 #include <algorithm>
 #include "Texture.hpp"
+#include "Animation.hpp"
 
 const char* vertexShaderSource = R"(
 	#version 330 core
@@ -174,10 +175,12 @@ int main() {
 //	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
 //	std::cout << Input::lastX << " " << Input::lastY << std::endl;
 
+    bool animation_end = true;
     std::cout << "Monitor refresh rate: " << glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate << " Hz" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
 
 //        lastFrameTime = std::chrono::high_resolution_clock::now();
+        animation_end = Animation::InitialAnimation(&camera, model.getCenter());
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -228,13 +231,16 @@ int main() {
 		// Unbind VAO
 		glBindVertexArray(0);
 
-		// Poll events
-        glfwPollEvents();
-		glfwSetKeyCallback(window, Input::keyCallback);
-		glfwSetCursorPosCallback(window, Input::mouseCallback);
-		glfwSetScrollCallback(window, Input::scrollCallback);
-		camera.setMoveSpeed(Input::moveSpeed);
-        Input::doMovement(camera, model);
+        if (!animation_end)
+        {
+            // Poll events
+            glfwPollEvents();
+            glfwSetKeyCallback(window, Input::keyCallback);
+            glfwSetCursorPosCallback(window, Input::mouseCallback);
+            glfwSetScrollCallback(window, Input::scrollCallback);
+            camera.setMoveSpeed(Input::moveSpeed);
+            Input::doMovement(camera, model);
+        }
 
         // Swap buffers and poll events
         glfwSwapBuffers(window);
