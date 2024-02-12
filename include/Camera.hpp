@@ -17,14 +17,28 @@ class Camera {
 		float       moveSpeed;
     public:
         Camera() : orientation(), position() {
-            orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-            position = glm::vec3(-150.0f, 150.0f, 250.0f);
-			moveSpeed = 0.5f;
+//            orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+//            position = glm::vec3(-150.0f, 150.0f, 250.0f);
+            position = glm::vec3(0.0f, 1.0f, 1.5f);
+            lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+            moveSpeed = 0.5f;
         }
 
 		float getMoveSpeed() {
 			return moveSpeed;
 		}
+
+        glm::quat getOrientation() {
+            return orientation;
+        }
+
+        glm::vec3 getPosition() {
+            return position;
+        }
+
+        void    setPosition(glm::vec3 position) {
+            this->position = position;
+        }
 
 		void setMoveSpeed(float speed) {
 			moveSpeed = speed;
@@ -79,6 +93,19 @@ class Camera {
 			direction = glm::normalize(direction * orientation);
 			return direction;
 		}
+
+        void    lookAt(glm::vec3 target) {
+            glm::vec3 direction = target - position;
+            direction = glm::normalize(direction);
+            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 right = glm::cross(direction, up);
+            glm::vec3 newUp = glm::cross(right, direction);
+
+            glm::mat3 rotationMatrix = glm::mat3(right, newUp, -direction);
+            orientation = glm::quat_cast(rotationMatrix);
+            orientation = glm::normalize(orientation);
+            orientation = glm::conjugate(orientation);
+        }
 
 };
 
