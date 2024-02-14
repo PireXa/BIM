@@ -6,12 +6,15 @@
 #define BIM_MODEL_HPP
 
 #include "GLM/glm.hpp"
+#include "readOBJ.hpp"
 
 class Model {
     private:
         glm::quat   orientation;
         glm::vec3   position;
         glm::vec3   center;
+        BoundingBox boundingBox;
+        float       scale;
     public:
         Model() : orientation(), position() {
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -22,8 +25,21 @@ class Model {
             return center;
         }
 
+        BoundingBox getBoundingBox() {
+            return boundingBox;
+        }
+
+        float  getScale() {
+            return scale;
+        }
+
         void    setCenter(glm::vec3 center) {
             this->center = center;
+        }
+
+        void    setBoundingBox(BoundingBox boundingBox) {
+            this->boundingBox = boundingBox;
+            scale = glm::length(boundingBox.max - boundingBox.min);
         }
 
         void    rotate(float angle, float x, float y, float z) {

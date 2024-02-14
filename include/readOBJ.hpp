@@ -12,6 +12,11 @@
 #include <sstream>
 #include <algorithm>
 
+struct  BoundingBox {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+
 class readOBJ {
 	private:
 		const char *filename;
@@ -22,11 +27,13 @@ class readOBJ {
 		int faceCount;
 		int vertexCount;
         glm::vec3 center;
+        BoundingBox boundingBox;
 	public:
 		readOBJ(const char *filename) : filename(filename) {
 			readVertices();
 			readFaces();
             CalculateCenter();
+            CalculateBoundingBox();
 		}
 		~readOBJ();
 		float *getVerticesArray();
@@ -35,10 +42,12 @@ class readOBJ {
 		int getFaceCount();
 		int getuvCount();
         glm::vec3 getCenter();
+        BoundingBox getBoundingBox();
 		void    readVertices();
 		void    readFaces();
         void    PlanarMapping();
         void    CalculateCenter();
+        void    CalculateBoundingBox();
 };
 
 #endif //BIM_READOBJ_HPP

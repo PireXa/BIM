@@ -21,6 +21,7 @@ class Input {
         static float model_pitch;
         static float fov;
 		static float moveSpeed;
+        static int animationState;
 
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
         static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
