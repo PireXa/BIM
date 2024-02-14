@@ -83,7 +83,7 @@ GLuint   ShaderSetups() {
 	return shaderProgram;
 }
 
-int main() {
+int main(int argc, char** argv) {
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -117,11 +117,20 @@ int main() {
 	Camera camera;
     Model model;
 
-	const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
-    const char * debian_filename = "./Models/teapot.obj";
+    const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
+    const char * debian_filename = "./Models/42.obj";
+    if (argc == 2)
+    {
+        windows_filename = argv[1];
+        debian_filename = argv[1];
+    }
 
 	readOBJ obj(debian_filename);
     model.setCenter(obj.getCenter());
+    model.setBoundingBox(obj.getBoundingBox());
+    std::cout << "Bounding box: " << model.getBoundingBox().min.x << " " << model.getBoundingBox().min.y << " " << model.getBoundingBox().min.z << std::endl;
+    std::cout << "Bounding box: " << model.getBoundingBox().max.x << " " << model.getBoundingBox().max.y << " " << model.getBoundingBox().max.z << std::endl;
+    std::cout << "Scale: " << model.getScale() << std::endl;
     if (obj.getuvCount() == 0)
     {
 //        std::cout << "No uv coordinates found, planar mapping will be used" << std::endl;
@@ -175,12 +184,12 @@ int main() {
 //	glfwGetCursorPos(window, &Input::lastX, &Input::lastY);
 //	std::cout << Input::lastX << " " << Input::lastY << std::endl;
 
-    bool animation_end = true;
+    bool animation_end;
     std::cout << "Monitor refresh rate: " << glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate << " Hz" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
 
 //        lastFrameTime = std::chrono::high_resolution_clock::now();
-        animation_end = Animation::InitialAnimation(&camera, model.getCenter());
+        animation_end = Animation::InitialAnimation(&camera, model.getCenter(), model.getScale(), &model);
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -32,6 +32,10 @@ glm::vec3 readOBJ::getCenter() {
     return center;
 }
 
+BoundingBox readOBJ::getBoundingBox() {
+    return boundingBox;
+}
+
 void    readOBJ::CalculateCenter()
 {
     float x = 0;
@@ -44,6 +48,34 @@ void    readOBJ::CalculateCenter()
         z += this->vertices[i].z;
     }
     this->center = glm::vec3(x / this->vertices.size(), y / this->vertices.size(), z / this->vertices.size());
+}
+
+void    readOBJ::CalculateBoundingBox()
+{
+    float minX = this->vertices[0].x;
+    float minY = this->vertices[0].y;
+    float minZ = this->vertices[0].z;
+    float maxX = this->vertices[0].x;
+    float maxY = this->vertices[0].y;
+    float maxZ = this->vertices[0].z;
+    for (int i = 0; i < this->vertices.size(); i++)
+    {
+        if (this->vertices[i].x < minX)
+            minX = this->vertices[i].x;
+        if (this->vertices[i].y < minY)
+            minY = this->vertices[i].y;
+        if (this->vertices[i].z < minZ)
+            minZ = this->vertices[i].z;
+        if (this->vertices[i].x > maxX)
+            maxX = this->vertices[i].x;
+        if (this->vertices[i].y > maxY)
+            maxY = this->vertices[i].y;
+        if (this->vertices[i].z > maxZ)
+            maxZ = this->vertices[i].z;
+    }
+    this->boundingBox.min = glm::vec3(minX, minY, minZ);
+    this->boundingBox.max = glm::vec3(maxX, maxY, maxZ);
+
 }
 
 long long int getNumberOfVertices(const std::string &line)

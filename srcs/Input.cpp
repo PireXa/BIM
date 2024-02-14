@@ -12,7 +12,8 @@ float Input::camera_pitch = 0.0f;
 float Input::model_yaw = 0.0f;
 float Input::model_pitch = 0.0f;
 float Input::fov = 45.0f;
-float Input::moveSpeed = 0.5f;
+float Input::moveSpeed = 0.3f;
+int Input::animationState = 1;
 
 void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key >= 0 && key < 1024) {
@@ -26,6 +27,7 @@ void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action
 			Input::keys[key] = false;
         }
     }
+    Input::animationState = 0;
 }
 
 void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -64,12 +66,14 @@ void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
         Input::model_yaw -= 360.0f;
     if (Input::model_yaw < -360.0f)
         Input::model_yaw += 360.0f;
+    Input::animationState = 0;
 }
 
 void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 	Input::moveSpeed += yoffset * 0.05f;
-	if (Input::moveSpeed < 0)
+	if (Input::moveSpeed <= 0.001f)
 		Input::moveSpeed = 0.02f;
+    Input::animationState = 0;
 }
 
 void    Input::doMovement(Camera &camera, Model &model) {
