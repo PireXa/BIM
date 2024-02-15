@@ -117,6 +117,9 @@ void    Input::doMovement(Camera &camera, Model &model) {
     if (Input::keys[GLFW_KEY_DOWN]) {
         model.rotate(-0.1f, 1.0f, 0.0f, 0.0f);
     }
+    if (Input::keys[GLFW_KEY_F]) {
+        model.reset();
+    }
     if (Input::keys[GLFW_KEY_I]) {
         model.translate(0.0f, 0.0f, 0.2f);
     }
