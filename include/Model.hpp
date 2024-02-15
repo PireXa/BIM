@@ -85,6 +85,10 @@ class Model {
 
             return model;
         }
+        void    reset() {
+            orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+            position = glm::vec3(0.0f, 0.0f, 0.0f);
+        }
 };
 
 #endif //BIM_MODEL_HPP
