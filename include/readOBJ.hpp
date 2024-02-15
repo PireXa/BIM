@@ -23,9 +23,9 @@ class readOBJ {
 		std::vector<Vertex> vertices;
 		std::vector<UV> uvs;
 		float *verticesArray;
-		int verticesArraySize;
-		int faceCount;
-		int vertexCount;
+		int verticesArraySize = 0;
+		int faceCount = 0;
+		int vertexCount = 0;
         glm::vec3 center;
         BoundingBox boundingBox;
 	public:
