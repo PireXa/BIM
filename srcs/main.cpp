@@ -18,56 +18,31 @@
 #include "Texture.hpp"
 #include "Animation.hpp"
 
-const char* vertexShaderSource = R"(
-	#version 330 core
-
-//	uniform mat4 view;  // Uniform view matrix
-//	uniform mat4 model;  // Uniform model matrix
-//	uniform mat4 projection;  // Uniform projection matrix
-    uniform mat4 vp;  // Uniform view-projection matrix
-
-	layout (location = 0) in vec3 position;  // Input: Vertex position
-	layout (location = 1) in vec3 uv;     // Input: Vertex color
-
-	out vec2 FragColor;  // Output: TextCoord for fragment shader
-
-	void main() {
-	    // Transform vertex position to camera space
-		gl_Position = vp * vec4(position, 1.0);
-
-		vec2 texCoord = uv.xy;
-	    // Pass color to the fragment shader
-	    FragColor = texCoord;
-		//FragColor = uv; // Pass rgb color to the fragment shader (for classic rainbow effect)
-	}
-)";
-
-const char* fragmentShaderSource = R"(
-    #version 330 core
-
-    in vec2 FragColor;  // Input: Vertex color (vec3 if using classic rainbow effect)
-
-	uniform sampler2D textureSampler;  // Texture sampler
-
-    out vec4 FinalColor;  // Output: Final fragment color
-
-    void main() {
-		// Sample the texture using the texture coordinates
-        vec4 texColor = texture(textureSampler, FragColor);
-
-        // Output the color directly
-        FinalColor = texColor;
+const char * loadShaderFromFile(const char* filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cout << "Failed to open file: " << filename << std::endl;
+        return "";
     }
-)";
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string str = buffer.str();
+    char *cstr = new char[str.length() + 1];
+    strcpy(cstr, str.c_str());
+    return cstr;
+}
 
 GLuint   ShaderSetups() {
 	// Compile Vertex Shader
+    const char * vertexShaderSource = loadShaderFromFile("./srcs/vertexShader.glsl");
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
 	// Compile Fragment Shader
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    const char * fragmentShaderSource = loadShaderFromFile("./srcs/fragmentShader.glsl");
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
 
@@ -80,6 +55,8 @@ GLuint   ShaderSetups() {
 	// Clean up individual shaders (they are no longer needed after linking)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+    free ((void *)vertexShaderSource);
+    free ((void *)fragmentShaderSource);
 	return shaderProgram;
 }
 
@@ -118,7 +95,7 @@ int main(int argc, char** argv) {
     Model model;
 
     const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
-    const char * debian_filename = "./Models/42.obj";
+    const char * debian_filename = "./Models/cube.obj";
     if (argc == 2)
     {
         windows_filename = argv[1];
@@ -128,15 +105,15 @@ int main(int argc, char** argv) {
 	readOBJ obj(debian_filename);
     model.setCenter(obj.getCenter());
     model.setBoundingBox(obj.getBoundingBox());
-    std::cout << "Bounding box: " << model.getBoundingBox().min.x << " " << model.getBoundingBox().min.y << " " << model.getBoundingBox().min.z << std::endl;
-    std::cout << "Bounding box: " << model.getBoundingBox().max.x << " " << model.getBoundingBox().max.y << " " << model.getBoundingBox().max.z << std::endl;
-    std::cout << "Scale: " << model.getScale() << std::endl;
+//    std::cout << "Bounding box: " << model.getBoundingBox().min.x << " " << model.getBoundingBox().min.y << " " << model.getBoundingBox().min.z << std::endl;
+//    std::cout << "Bounding box: " << model.getBoundingBox().max.x << " " << model.getBoundingBox().max.y << " " << model.getBoundingBox().max.z << std::endl;
+//    std::cout << "Scale: " << model.getScale() << std::endl;
     if (obj.getuvCount() == 0)
     {
 //        std::cout << "No uv coordinates found, planar mapping will be used" << std::endl;
         obj.PlanarMapping();
     }
-	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
+//	std::cout << "Face count: " << obj.getFaceCount() << std::endl;
 
 	Texture texture("./Models/zebra.bmp");
     glGenTextures(1, texture.getTextureID());
@@ -146,6 +123,7 @@ int main(int argc, char** argv) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Vertex Buffer Object (VBO)
     GLuint VBO;
@@ -172,6 +150,61 @@ int main(int argc, char** argv) {
 	// Unbind VAO and VBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    float planeVertices[] = {
+            // Position            // Texture coordinates
+            -100.0f, -1.0f, -100.0f,    0.0f, 0.0f, 0.0f,  // Bottom-left
+             100.0f, -1.0f, -100.0f,     1.0f, 0.0f, 0.0f, // Bottom-right
+            -100.0f, -1.0f, 100.0f,     0.0f, 1.0f, 0.0f,  // Top-left
+            100.0f, -1.0f, -100.0f,     1.0f, 0.0f, 0.0f,  // Bottom-right
+            100.0f, -1.0f, 100.0f,      1.0f, 1.0f, 0.0f,  // Top-right
+            -100.0f, -1.0f, 100.0f,     0.0f, 1.0f, 0.0f,  // Top-left
+    };
+
+    int vertexCount = 6;
+
+    // Generate VBO and VAO for the XZ plane
+    GLuint planeVBO, planeVAO;
+    glGenBuffers(1, &planeVBO);
+    glGenVertexArrays(1, &planeVAO);
+
+    // Bind VAO for the XZ plane
+    glBindVertexArray(planeVAO);
+
+    // Bind VBO for the XZ plane and copy vertex data to it
+    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * vertexCount, planeVertices, GL_STATIC_DRAW);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * obj.getVertexCount() , obj.getVerticesArray(), GL_STATIC_DRAW);
+
+    // Specify vertex attribute pointers and enable them for the XZ plane
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // Unbind VAO and VBO for the XZ plane
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // Load texture for the XZ plane
+    Texture planeTexture("./Models/grid2.bmp"); // Replace with the actual path to your texture file
+
+    // Generate texture ID for the XZ plane
+    glGenTextures(1, planeTexture.getTextureID());
+
+
+    // Bind the texture and set its parameters
+    glBindTexture(GL_TEXTURE_2D, *planeTexture.getTextureID());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Load texture data into the texture object
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, planeTexture.getWidth(), planeTexture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, planeTexture.getPixels().data());
+
+    // Unbind the texture
+    glBindTexture(GL_TEXTURE_2D, 0);
 
 //    const double targetFrameTime = 1.0f * 1e6 / 60.0f;
     auto lastFrameTime = std::chrono::high_resolution_clock::now();
@@ -216,8 +249,13 @@ int main(int argc, char** argv) {
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 
+        glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
 		// Draw the triangle
 		glDrawArrays(GL_TRIANGLES, 0, obj.getVertexCount());
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        // Unbind VAO
+        glBindVertexArray(0);
 
 		// FPS calculation
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -237,8 +275,11 @@ int main(int argc, char** argv) {
 			lastFPSTime = currentTime;
 		}
 
-		// Unbind VAO
-		glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, *planeTexture.getTextureID());
+        glBindVertexArray(planeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount); // Replace numberOfVertices with the actual number of vertices for the XZ plane
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         if (!animation_end)
         {
@@ -259,8 +300,10 @@ int main(int argc, char** argv) {
 	}
 
 	// Clean up
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+//	glDeleteVertexArrays(1, &VAO);
+//	glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &planeVAO);
+    glDeleteBuffers(1, &planeVBO);
 	glDeleteProgram(shaderProgram);
 
 	// Terminate GLFW
