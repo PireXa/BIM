@@ -12,7 +12,7 @@ float Input::camera_pitch = 0.0f;
 float Input::model_yaw = 0.0f;
 float Input::model_pitch = 0.0f;
 float Input::fov = 45.0f;
-float Input::moveSpeed = 0.3f;
+float Input::moveSpeed = 0.2f;
 int Input::animationState = 1;
 
 void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {

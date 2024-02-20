@@ -4,10 +4,6 @@
 
 #include "readOBJ.hpp"
 
-readOBJ::~readOBJ() {
-	delete[] verticesArray;
-}
-
 float *readOBJ::getVerticesArray() {
 	return verticesArray;
 }
