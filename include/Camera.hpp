@@ -8,7 +8,7 @@
 #include <cmath>
 #include "glMath.hpp"
 #include "Quaternion.hpp"
-#define SENSITIVITY 0.0009f
+#define SENSITIVITY 0.0005f
 
 class Camera {
     private:
@@ -17,8 +17,6 @@ class Camera {
 		float       moveSpeed;
     public:
         Camera() : orientation(), position() {
-//            orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-//            position = glm::vec3(-150.0f, 150.0f, 250.0f);
             position = glm::vec3(0.0f, 1.0f, 1.5f);
             lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
             moveSpeed = 0.5f;

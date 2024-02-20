@@ -7,8 +7,8 @@
 
 #include <iostream>
 #include "glMath.hpp"
-#include "Camera.hpp"
 #include "Model.hpp"
+#include "Camera.hpp"
 
 class Input {
     public:

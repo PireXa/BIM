@@ -5,8 +5,9 @@
 #ifndef BIM_MODEL_HPP
 #define BIM_MODEL_HPP
 
-#include "GLM/glm.hpp"
+#include "glMath.hpp"
 #include "readOBJ.hpp"
+#include "Texture.hpp"
 
 class Model {
     private:
@@ -15,11 +16,26 @@ class Model {
         glm::vec3   center;
         BoundingBox boundingBox;
         float       scale;
+        Texture     texture;
+        readOBJ     obj;
+        GLuint     VAO;
+        GLuint     VBO;
+
     public:
-        Model() : orientation(), position() {
+        Model(const char *texturePath, const char *objPath) : orientation(), position(), texture(texturePath), obj(objPath) {
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
             position = glm::vec3(0.0f, 0.0f, 0.0f);
+            center = obj.getCenter();
+            boundingBox = obj.getBoundingBox();
+            scale = glm::length(boundingBox.max - boundingBox.min);
         }
+
+		~Model() {
+			glDeleteVertexArrays(1, &VAO);
+			glDeleteBuffers(1, &VBO);
+		}
+
+        void    vertexBufferSetup(GLuint shaderProgram);
 
         glm::vec3 getCenter() {
             return center;
@@ -31,6 +47,22 @@ class Model {
 
         float  getScale() {
             return scale;
+        }
+
+        Texture getTexture() {
+            return texture;
+        }
+
+        readOBJ getObj() {
+            return obj;
+        }
+
+        GLuint getVAO() {
+            return VAO;
+        }
+
+        GLuint getVBO() {
+            return VBO;
         }
 
         void    setCenter(glm::vec3 center) {

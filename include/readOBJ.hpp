@@ -34,8 +34,11 @@ class readOBJ {
 			readFaces();
             CalculateCenter();
             CalculateBoundingBox();
+            if (uvs.size() == 0) {
+                PlanarMapping();
+            }
+			std::cout << "Face count: " << faceCount << std::endl;
 		}
-		~readOBJ();
 		float *getVerticesArray();
 		int getVerticesArraySize();
 		int getVertexCount();
