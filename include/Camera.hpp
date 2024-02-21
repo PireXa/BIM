@@ -73,9 +73,13 @@ class Camera {
 
         glm::mat4   getViewMatrix()
         {
-            glm::mat3 rotationMatrix = glm::mat3_cast(orientation);
+//            glm::mat3 rotationMatrix = glm::mat3_cast(orientation);
+//            glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), -position);
+//            glm::mat4 viewMatrix = glm::mat4(rotationMatrix) * translationMatrix;
+//            return viewMatrix;
+            glm::mat4 viewMatrix = glm::mat4_cast(orientation);
             glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), -position);
-            glm::mat4 viewMatrix = glm::mat4(rotationMatrix) * translationMatrix;
+            viewMatrix = viewMatrix * translationMatrix;
             return viewMatrix;
         }
 
@@ -96,14 +100,34 @@ class Camera {
             glm::vec3 direction = target - position;
             direction = glm::normalize(direction);
             glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::vec3 right = glm::cross(direction, up);
-            glm::vec3 newUp = glm::cross(right, direction);
+            glm::vec3 right = glm::normalize(glm::cross(direction, up));
+            glm::vec3 newUp = glm::normalize(glm::cross(right, direction));
 
-            glm::mat3 rotationMatrix = glm::mat3(right, newUp, -direction);
+            glm::mat4 rotationMatrix = glm::mat4(1.0f);
+            rotationMatrix[0][0] = right.x;
+            rotationMatrix[1][0] = right.y;
+            rotationMatrix[2][0] = right.z;
+            rotationMatrix[0][1] = newUp.x;
+            rotationMatrix[1][1] = newUp.y;
+            rotationMatrix[2][1] = newUp.z;
+            rotationMatrix[0][2] = -direction.x;
+            rotationMatrix[1][2] = -direction.y;
+            rotationMatrix[2][2] = -direction.z;
+            rotationMatrix[3][0] = -glm::dot(right, position);
+            rotationMatrix[3][1] = -glm::dot(newUp, position);
+            rotationMatrix[3][2] = glm::dot(direction, position);
             orientation = glm::quat_cast(rotationMatrix);
-            orientation = glm::normalize(orientation);
-            orientation = glm::conjugate(orientation);
         }
+//        void lookAt(glm::vec3 target) {
+//            glm::vec3 direction = glm::normalize(target - position);
+//            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+//
+//            // Calculate the orientation matrix using glm::lookAt
+//            glm::mat4 viewMatrix = glm::lookAt(position, target, up);
+//
+//            // Extract the orientation quaternion from the view matrix
+//            orientation = glm::quat_cast(glm::mat3(viewMatrix));
+//        }
 
 };
 

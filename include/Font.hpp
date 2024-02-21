@@ -155,6 +155,10 @@ class Font {
 			std::string::const_iterator c;
 			for (c = text.begin(); c != text.end(); c++) {
 				Character ch = Characters[*c];
+                if (*c >= 97 && *c <= 122)
+                {
+                    scale = 0.15f;
+                }
 
 				// Calculate texture coordinates based on the position and size of the character glyph in the texture atlas
 				float texLeft = ch.TexturePos.x / static_cast<float>(width);   // Left edge of the character glyph
@@ -172,11 +176,15 @@ class Font {
 
 				if (*c == ':' || *c == 'o' || *c == 'r' || *c == 's' || *c == 'u' || *c == 'v' || *c == 'w' || *c == 'x' || *c == 'z')
 				{
-					scaledYPos -= scale * 100 / 4;
+					scaledYPos -= scale * 4.0f;
 				}
+//                if (*c == ':')
+//                {
+//                    scaledYPos -= scale * 10;
+//                }
 				if (*c == 46)
 				{
-					scaledYPos -= scale * 100 / 1.3;
+					scaledYPos -= scale * 32;
 				}
 
 				// Update VBO for each character with correct texture coordinates

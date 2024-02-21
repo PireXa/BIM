@@ -14,12 +14,12 @@ class DefaultPlane {
         int vertexCount = 6;
 		float vertices[36] = {
 			// Position            // Texture coordinates
-			-100.0f, -1.0f, -100.0f,    0.0f, 0.0f, 0.0f,  // Bottom-left
-			 100.0f, -1.0f, -100.0f,     1.0f, 0.0f, 0.0f, // Bottom-right
-			-100.0f, -1.0f, 100.0f,     0.0f, 1.0f, 0.0f,  // Top-left
-			100.0f, -1.0f, -100.0f,     1.0f, 0.0f, 0.0f,  // Bottom-right
-			100.0f, -1.0f, 100.0f,      1.0f, 1.0f, 0.0f,  // Top-right
-			-100.0f, -1.0f, 100.0f,     0.0f, 1.0f, 0.0f,  // Top-left
+			-1000.0f, -5.0f, -1000.0f,    0.0f, 0.0f, 0.0f,  // Bottom-left
+            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
+			 1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f, // Bottom-right
+			1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f,  // Bottom-right
+            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
+			1000.0f, -5.0f, 1000.0f,      5.0f, 10.0f, 0.0f,  // Top-right
 		};
 		GLuint VAO;
 		GLuint VBO;

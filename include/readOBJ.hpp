@@ -29,13 +29,13 @@ class readOBJ {
         glm::vec3 center;
         BoundingBox boundingBox;
 	public:
-		readOBJ(const char *filename) : filename(filename) {
+		readOBJ(const char *filename, float resolution) : filename(filename) {
 			readVertices();
 			readFaces();
             CalculateCenter();
             CalculateBoundingBox();
             if (uvs.size() == 0) {
-                PlanarMapping();
+                PlanarMapping(resolution);
             }
 			std::cout << "Face count: " << faceCount << std::endl;
 		}
@@ -48,7 +48,7 @@ class readOBJ {
         BoundingBox getBoundingBox();
 		void    readVertices();
 		void    readFaces();
-        void    PlanarMapping();
+        void    PlanarMapping(float resolution);
         void    CalculateCenter();
         void    CalculateBoundingBox();
 };

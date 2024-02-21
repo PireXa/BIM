@@ -22,7 +22,7 @@ class Model {
         GLuint     VBO;
 
     public:
-        Model(const char *texturePath, const char *objPath) : orientation(), position(), texture(texturePath), obj(objPath) {
+        Model(const char *texturePath, const char *objPath, float textureScale) : orientation(), position(), texture(texturePath), obj(objPath, textureScale) {
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
             position = glm::vec3(0.0f, 0.0f, 0.0f);
             center = obj.getCenter();
