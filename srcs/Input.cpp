@@ -146,4 +146,6 @@ void    Input::doMovement(Camera &camera, Model &model) {
         model.rotate(Input::model_yaw, up.x, up.y, up.z);
         Input::model_yaw = 0.0f;
     }
+    std::cout << "Camera direction: " << camera.getDirectionVector().x << " " << camera.getDirectionVector().y << " " << camera.getDirectionVector().z << std::endl;
+    std::cout << std::endl;
 }

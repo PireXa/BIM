@@ -137,7 +137,6 @@ void    readOBJ::readFaces()
 		if (!line.compare(0, 2, "f "))
 		{
 			long long int numberOfVertices= getNumberOfVertices(line);
-//			std::cout << "numberOfVertices " << numberOfVertices << std::endl;
 			int f1, n1, f2, n2, f3, n3, f4, n4;
 			float t1, t2, t3, t4;
 
@@ -374,9 +373,9 @@ void    readOBJ::readFaces()
 
 // verticesArray    vertex1 x, vertex1 y, vertex1 z, vertex1 u, vertex1 v, vertex1 w
 
-void    readOBJ::PlanarMapping()
+void    readOBJ::PlanarMapping(float resolution)
 {
-    float resolution = 0.3;
+//    float resolution = 0.3;
     for (int i = 0; i < this->verticesArraySize; i += 18)
     {
         Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};

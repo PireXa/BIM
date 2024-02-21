@@ -100,9 +100,9 @@ int main(int argc, char** argv) {
         windows_filename = argv[1];
         debian_filename = argv[1];
     }
-    Model model("./Models/zebra.bmp", debian_filename);\
+    Model model("./Models/zebra.bmp", debian_filename, 0.3f);
     model.vertexBufferSetup(shaderProgram);
-	
+
 	DefaultPlane defaultPlane("./Models/grid2.bmp");
 
 	// Set up the projection matrix
@@ -113,8 +113,8 @@ int main(int argc, char** argv) {
 //												  1920.0f / 1080.0f,          // Aspect ratio
 //												  0.1f, 1000.0f);        // Near and far planes
 
-	Font font("./Fonts/PixellariWhite.png");
-	font.readFNT("./Fonts/Pixellari.fnt");
+	Font font("./Fonts/Font3.png");
+	font.readFNT("./Fonts/Font3.fnt");
 
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -176,8 +176,12 @@ int main(int argc, char** argv) {
 		// Bind the VAO for the XZ plane
         glBindVertexArray(defaultPlane.getVAO());
 
+//        glEnable(GL_CULL_FACE);
+
 		// Draw the XZ plane
         glDrawArrays(GL_TRIANGLES, 0, defaultPlane.getVertexCount());
+
+//        glDisable(GL_CULL_FACE);
 
         // Unbind the VAO for the XZ plane
 		glBindVertexArray(0);
@@ -185,13 +189,13 @@ int main(int argc, char** argv) {
 		// Unbind the texture for the XZ plane
         glBindTexture(GL_TEXTURE_2D, 0);
 
-
+        // Set the uniform in the shader to the MVP matrix for the text
 		glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(textMatrix));
 		// Draw text
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << fps;
 		std::string fpsString = ss.str();
-		font.renderText("FPS: " + fpsString + "Hz", 10.0f, 380.0f, 0.18f, shaderProgram);
+		font.renderText("FPS: " + fpsString, 5.0f, 185.0f, 0.20f, shaderProgram);
 
         if (!animation_end)
         {

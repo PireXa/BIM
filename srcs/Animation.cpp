@@ -20,7 +20,6 @@ bool    Animation::InitialAnimation(Camera *camera, glm::vec3 modelCenter, float
     {
         float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - start).count();
         camera->translate(0.02f * deltaTime, 0.003f * deltaTime, 0.01f * deltaTime);
-//        camera->translate(0.05f * deltaTime, 0.01f * deltaTime, 0.02f * deltaTime);
         camera->lookAt(modelCenter);
         return true;
     }
