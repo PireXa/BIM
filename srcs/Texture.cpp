@@ -38,7 +38,7 @@ bool    Texture::loadBMP() {
 	if (!file.is_open()) {
 		std::cerr << "Error: Could not open texture file: " << this->path << std::endl;
         std::cout << "Loading default texture" << std::endl;
-        file = std::ifstream("./Models/zebra.bmp", std::ios::binary);
+        file = std::ifstream("./Resources/Textures/zebra.bmp", std::ios::binary);
 	}
 
 	// Read BMP header

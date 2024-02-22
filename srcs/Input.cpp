@@ -76,7 +76,7 @@ void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset
     Input::animationState = 0;
 }
 
-void    Input::doMovement(Camera &camera, Model &model) {
+void    Input::doMovement(Camera &camera, Model &model, GUI &gui) {
     if (Input::keys[GLFW_KEY_W]) {
         glm::vec3 direction = camera.getDirectionVector();
         camera.translate(direction.x * camera.getMoveSpeed(), direction.y * camera.getMoveSpeed(), direction.z * camera.getMoveSpeed());
@@ -106,16 +106,22 @@ void    Input::doMovement(Camera &camera, Model &model) {
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
     }
     if (Input::keys[GLFW_KEY_LEFT]) {
-        model.rotate(0.1f, 0.0f, 1.0f, 0.0f);
+        gui.translate(glm::vec2(-1.0f, 0.0f));
     }
     if (Input::keys[GLFW_KEY_RIGHT]) {
-        model.rotate(-0.1f, 0.0f, 1.0f, 0.0f);
+        gui.translate(glm::vec2(1.0f, 0.0f));
     }
     if (Input::keys[GLFW_KEY_UP]) {
-        model.rotate(0.1f, 1.0f, 0.0f, 0.0f);
+        gui.translate(glm::vec2(0.0f, 1.0f));
     }
     if (Input::keys[GLFW_KEY_DOWN]) {
-        model.rotate(-0.1f, 1.0f, 0.0f, 0.0f);
+        gui.translate(glm::vec2(0.0f, -1.0f));
+    }
+    if (Input::keys[GLFW_KEY_Y]) {
+        gui.addWidth(10);
+    }
+    if (Input::keys[GLFW_KEY_H]) {
+        gui.addWidth(-10);
     }
     if (Input::keys[GLFW_KEY_F]) {
         model.reset();

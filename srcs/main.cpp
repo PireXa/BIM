@@ -4,6 +4,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "BIM.hpp"
+#include <GL/glx.h>
+#include <GL/glu.h>
 
 const char * loadShaderFromFile(const char* filename) {
     std::ifstream file(filename);
@@ -53,7 +55,8 @@ GLFWwindow *InitalSetup() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(800, 600, "BIM", nullptr, nullptr);
+//	GLFWwindow *window = glfwCreateWindow(800, 600, "BIM", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", glfwGetPrimaryMonitor(), nullptr);
 	if (window == nullptr) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -74,7 +77,7 @@ GLFWwindow *InitalSetup() {
 	//Enable culing of back-facing triangles
 //	glEnable(GL_CULL_FACE);
 
-	glClearColor(0.0f, 0.68f, 1.0f, 1.0f);
+	glClearColor(0.0f, 0.32f, 0.5f, 1.0f);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -94,27 +97,29 @@ int main(int argc, char** argv) {
 	Camera camera;
 
     const char * windows_filename = "..\\Models\\Porsche_911_GT2.obj";
-    const char * debian_filename = "./Models/cube.obj";
+    const char * debian_filename = "./Resources/Models/cube.obj";
     if (argc == 2)
     {
         windows_filename = argv[1];
         debian_filename = argv[1];
     }
-    Model model("./Models/zebra.bmp", debian_filename, 0.3f);
+    Model model("./Resources/Textures/zebra.bmp", debian_filename, 0.3f);
     model.vertexBufferSetup(shaderProgram);
 
-	DefaultPlane defaultPlane("./Models/grid2.bmp");
+	DefaultPlane defaultPlane("./Resources/Textures/pattern5.bmp");
 
 	// Set up the projection matrix
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
-												  800.0f / 600.0f,          // Aspect ratio
-												  0.1f, 1000.0f);        // Near and far planes
 //	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
-//												  1920.0f / 1080.0f,          // Aspect ratio
+//												  800.0f / 600.0f,          // Aspect ratio
 //												  0.1f, 1000.0f);        // Near and far planes
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
+												  WIN_WIDTH / WIN_HEIGHT,          // Aspect ratio
+												  0.1f, 1000.0f);        // Near and far planes
 
-	Font font("./Fonts/Font3.png");
+	TextFont font("./Fonts/Font3.png");
 	font.readFNT("./Fonts/Font3.fnt");
+
+    GUI gui;
 
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -195,7 +200,10 @@ int main(int argc, char** argv) {
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << fps;
 		std::string fpsString = ss.str();
-		font.renderText("FPS: " + fpsString, 5.0f, 185.0f, 0.20f, shaderProgram);
+		font.renderText("FPS: " + fpsString, 50.0f, 1030.f, 1.00f, shaderProgram);
+
+        // Draw GUI
+        gui.draw();
 
         if (!animation_end)
         {
@@ -205,7 +213,7 @@ int main(int argc, char** argv) {
             glfwSetCursorPosCallback(window, Input::mouseCallback);
             glfwSetScrollCallback(window, Input::scrollCallback);
             camera.setMoveSpeed(Input::moveSpeed);
-            Input::doMovement(camera, model);
+            Input::doMovement(camera, model, gui);
         }
 
         // Swap buffers and poll events
