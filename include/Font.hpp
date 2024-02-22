@@ -9,7 +9,7 @@
 #include "BIM.hpp"
 #include "stb_image.h"
 
-class Font {
+class TextFont {
 	private:
 		unsigned int textureID;
 		int width;
@@ -25,7 +25,7 @@ class Font {
 		std::map<GLchar, Character> Characters;
 		glm::mat4 matrix;
 	public:
-		Font(const char *texturePath) {
+		TextFont(const char *texturePath) {
 
 			// Generate VBO and VAO for the text
 			glGenBuffers(1, &VBO);
@@ -35,8 +35,8 @@ class Font {
 			glBindVertexArray(VAO);
 
 			// Bind VBO for the text and copy vertex data to it
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 3, NULL, GL_DYNAMIC_DRAW);
+//			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, NULL, GL_DYNAMIC_DRAW);
 
 			// Specify vertex attribute pointers and enable them for the text
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
@@ -45,7 +45,7 @@ class Font {
 			glEnableVertexAttribArray(1);
 
 			// Unbind VAO and VBO for the text
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+//			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 
 			glGenTextures(1, &textureID);
@@ -66,8 +66,8 @@ class Font {
 			stbi_image_free(data);
 			glBindTexture(GL_TEXTURE_2D, 0);
 
-			matrix = glm::ortho(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
-		}
+		    matrix = glm::ortho(0.0f, WIN_WIDTH, 0.0f, WIN_HEIGHT);
+        }
 
 		void	readFNT(const char *fntPath) {
 			std::ifstream file(fntPath);
@@ -207,20 +207,11 @@ class Font {
 				glDrawArrays(GL_TRIANGLES, 0, 6);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-				x += ch.Advance * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+				x += ch.Advance * scale;
 			}
 			glBindVertexArray(0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
-
-		void renderTriangle(GLuint shaderProgram) {
-			glBindTexture(GL_TEXTURE_2D, textureID);
-			glBindVertexArray(VAO);
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-			glBindVertexArray(0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-
 
 };
 

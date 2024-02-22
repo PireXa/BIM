@@ -12,7 +12,6 @@
 #include "GLM/gtc/type_ptr.hpp"
 #include "GLFW/glfw3.h"
 
-
 struct Vertex {
 	float x, y, z;
     float u, v; // Texture coordinates
