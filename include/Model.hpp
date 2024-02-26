@@ -65,6 +65,10 @@ class Model {
             return VBO;
         }
 
+		glm::vec3 getPosition() {
+			return position;
+		}
+
         void    setCenter(glm::vec3 center) {
             this->center = center;
         }
@@ -120,6 +124,7 @@ class Model {
         void    reset() {
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
             position = glm::vec3(0.0f, 0.0f, 0.0f);
+			center = obj.getCenter();
         }
 };
 
