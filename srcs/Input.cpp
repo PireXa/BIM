@@ -7,6 +7,8 @@
 bool Input::keys[1024] = {false};
 double Input::lastX = 400.0f;
 double Input::lastY = 300.0f;
+double Input::lastDragX = 0.0f;
+double Input::lastDragY = 0.0f;
 float Input::camera_yaw = 0.0f;
 float Input::camera_pitch = 0.0f;
 float Input::model_yaw = 0.0f;
@@ -30,6 +32,28 @@ void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action
     Input::animationState = 0;
 }
 
+void	Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+		Input::lastDragX = xpos;
+		Input::lastDragY = ypos;
+		Input::keys[GLFW_MOUSE_BUTTON_LEFT] = true;
+	}
+	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	{
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+		Input::lastDragX = xpos;
+		Input::lastDragY = ypos;
+		Input::keys[GLFW_MOUSE_BUTTON_LEFT] = false;
+	}
+
+}
+
 void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	float xoffset = xpos - Input::lastX;
 	float yoffset = Input::lastY - ypos;
@@ -39,16 +63,20 @@ void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	xoffset *= SENSITIVITY;
 	yoffset *= SENSITIVITY;
 
-    if (!Input::keys[GLFW_KEY_LEFT_ALT])
+    if (!Input::keys[GLFW_KEY_LEFT_ALT] && !Input::keys[GLFW_KEY_LEFT_CONTROL])
     {
         Input::camera_yaw += xoffset;
         Input::camera_pitch += yoffset;
     }
-    else
+    else if (Input::keys[GLFW_KEY_LEFT_ALT] && !Input::keys[GLFW_KEY_LEFT_CONTROL])
     {
         Input::model_yaw += xoffset;
         Input::model_pitch += yoffset;
     }
+//	else if (!Input::keys[GLFW_KEY_LEFT_ALT] && Input::keys[GLFW_KEY_LEFT_CONTROL] && Input::keys[GLFW_MOUSE_BUTTON_LEFT])
+//	{
+//		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+//	}
 
 	if (Input::camera_pitch > 89.0f)
 		Input::camera_pitch = 89.0f;
@@ -76,7 +104,19 @@ void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset
     Input::animationState = 0;
 }
 
-void    Input::doMovement(Camera &camera, Model &model, GUI &gui) {
+void    Input::doMovement(GLFWwindow* window, Camera &camera, Model &model, GUI &gui) {
+	if (Input::keys[GLFW_KEY_LEFT_CONTROL]) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+	else {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+	if (Input::keys[GLFW_KEY_Q]) {
+		camera.translate(0.0f, 0.0f, -camera.getMoveSpeed());
+	}
+	if (Input::keys[GLFW_KEY_E]) {
+		camera.translate(0.0f, 0.0f, camera.getMoveSpeed());
+	}
     if (Input::keys[GLFW_KEY_W]) {
         glm::vec3 direction = camera.getDirectionVector();
         camera.translate(direction.x * camera.getMoveSpeed(), direction.y * camera.getMoveSpeed(), direction.z * camera.getMoveSpeed());
@@ -100,7 +140,7 @@ void    Input::doMovement(Camera &camera, Model &model, GUI &gui) {
         camera.translate(0.0f, -camera.getMoveSpeed(), 0.0f);
     }
     if (Input::keys[GLFW_KEY_R]) {
-        camera.lookAt(model.getCenter());
+		camera.lookAt(model.getCenter());
     }
     if (Input::keys[GLFW_KEY_T]) {
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));

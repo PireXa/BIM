@@ -56,7 +56,7 @@ GLFWwindow *InitalSetup() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 //	GLFWwindow *window = glfwCreateWindow(800, 600, "BIM", nullptr, nullptr);
-    GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", glfwGetPrimaryMonitor(), nullptr);
+    GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", nullptr, nullptr);
 	if (window == nullptr) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -200,7 +200,10 @@ int main(int argc, char** argv) {
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << fps;
 		std::string fpsString = ss.str();
-		font.renderText("FPS: " + fpsString, 50.0f, 1030.f, 1.00f, shaderProgram);
+		font.renderText("FPS: " + fpsString, WIN_WIDTH / 25, WIN_HEIGHT - WIN_HEIGHT / 20, 1.00f, shaderProgram);
+		static int x = 0;
+		static int y = 0;
+//		font.renderText("aaaaa", x, y, 10.00f, shaderProgram);
 
         // Draw GUI
         gui.draw();
@@ -210,10 +213,11 @@ int main(int argc, char** argv) {
             // Poll events
             glfwPollEvents();
             glfwSetKeyCallback(window, Input::keyCallback);
+			glfwSetMouseButtonCallback(window, Input::Input::mouseButtonCallback);
             glfwSetCursorPosCallback(window, Input::mouseCallback);
             glfwSetScrollCallback(window, Input::scrollCallback);
             camera.setMoveSpeed(Input::moveSpeed);
-            Input::doMovement(camera, model, gui);
+            Input::doMovement(window, camera, model, gui);
         }
 
         // Swap buffers and poll events
