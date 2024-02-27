@@ -15,7 +15,7 @@ class GUI {
         GLuint VAO, VBO;
         Texture texture;
     public:
-        GUI() : texture("./Resources/Textures/pattern5.bmp") {
+        GUI() : texture("./Resources/Textures/pattern4.bmp") {
             width = 100;
             height = 100;
             position = glm::vec2(100.0f, 100.0f);
@@ -129,12 +129,103 @@ class GUI {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
+        void addHeight(int height) {
+            this->height += height;
+            vertices[13] += height;
+            vertices[19] += height;
+            vertices[31] += height;
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
+        void addPositionWidth(int width) {
+            this->position.x += width;
+            vertices[0] += width;
+            vertices[6] += width;
+            vertices[12] += width;
+            vertices[18] += width;
+            vertices[24] += width;
+            vertices[30] += width;
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
+        void addPositionHeight(int height) {
+            this->position.y += height;
+            vertices[1] += height;
+            vertices[7] += height;
+            vertices[13] += height;
+            vertices[19] += height;
+            vertices[25] += height;
+            vertices[31] += height;
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
         void draw() {
             glBindVertexArray(VAO);
             glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
             glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindVertexArray(0);
+        }
+
+        int isClicked(glm::vec2 click) {
+            click = glm::vec2(click.x, WIN_HEIGHT - click.y);
+            //Top Right Corner
+            glm::vec2 topRight = glm::vec2(position.x + width, position.y + height);
+            int boundry = 10;
+            if (click.x >= topRight.x - boundry && click.x <= topRight.x + boundry && click.y >= topRight.y - boundry && click.y <= topRight.y + boundry)
+                return 1;
+            //Top Left Corner
+            glm::vec2 topLeft = glm::vec2(position.x, position.y + height);
+            if (click.x >= topLeft.x - boundry && click.x <= topLeft.x + boundry && click.y >= topLeft.y - boundry && click.y <= topLeft.y + boundry)
+                return 2;
+            //Bottom Right Corner
+            glm::vec2 bottomRight = glm::vec2(position.x + width, position.y);
+            if (click.x >= bottomRight.x - boundry && click.x <= bottomRight.x + boundry && click.y >= bottomRight.y - boundry && click.y <= bottomRight.y + boundry)
+                return 3;
+            //Bottom Left Corner
+            glm::vec2 bottomLeft = glm::vec2(position.x, position.y);
+            if (click.x >= bottomLeft.x - boundry && click.x <= bottomLeft.x + boundry && click.y >= bottomLeft.y - boundry && click.y <= bottomLeft.y + boundry)
+                return 4;
+            //Inside GUI
+            if (click.x >= position.x && click.x <= position.x + width && click.y >= position.y && click.y <= position.y + height)
+                return 5;
+            return false;
+        }
+
+        void    dragResize(glm::vec2 beginDrag, glm::vec2 currentDrag, int corner)
+        {
+            beginDrag = glm::vec2(beginDrag.x, WIN_HEIGHT - beginDrag.y);
+            currentDrag = glm::vec2(currentDrag.x, WIN_HEIGHT - currentDrag.y);
+            glm::vec2 translation = currentDrag - beginDrag;
+            if (corner == 1) {
+                addWidth(translation.x);
+                addHeight(translation.y);
+            }
+            else if (corner == 2) {
+                addPositionWidth(translation.x);
+                addWidth(-translation.x);
+                addHeight(translation.y);
+            }
+            else if (corner == 3) {
+                addPositionHeight(translation.y);
+                addWidth(translation.x);
+                addHeight(-translation.y);
+            }
+            else if (corner == 4) {
+                addPositionWidth(translation.x);
+                addPositionHeight(translation.y);
+                addWidth(-translation.x);
+                addHeight(-translation.y);
+            }
+            else if (corner == 5) {
+                translate(translation);
+            }
         }
 };
 

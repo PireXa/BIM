@@ -22,6 +22,7 @@ class readOBJ {
 		const char *filename;
 		std::vector<Vertex> vertices;
 		std::vector<UV> uvs;
+        std::vector<Normal> normals;
 		float *verticesArray;
 		int verticesArraySize = 0;
 		int faceCount = 0;

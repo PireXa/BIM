@@ -26,4 +26,8 @@ struct UV {
 	float u, v;
 };
 
+struct Normal {
+    float x, y, z;
+};
+
 #endif //BIM_GLMATH_HPP

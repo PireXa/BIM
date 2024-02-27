@@ -5,8 +5,10 @@
 #ifndef BIM_BIM_HPP
 #define BIM_BIM_HPP
 
-#define WIN_WIDTH 1920.0f
-#define WIN_HEIGHT 1080.0f
+//#define WIN_WIDTH 1920.0f
+//#define WIN_HEIGHT 1080.0f
+#define WIN_WIDTH 1280.0f
+#define WIN_HEIGHT 720.0f
 
 #define GLEW_STATIC
 #include <iostream>

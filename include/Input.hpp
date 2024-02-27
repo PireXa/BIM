@@ -16,8 +16,10 @@ class Input {
         static bool keys[1024];
         static double lastX;
         static double lastY;
-		static double lastDragX;
-		static double lastDragY;
+        static glm::vec2 beginDrag;
+        static glm::vec2 currentDrag;
+        static glm::vec2 endDrag;
+        static bool dragging;
         static float camera_yaw;
         static float camera_pitch;
         static float model_yaw;
