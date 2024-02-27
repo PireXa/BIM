@@ -7,8 +7,9 @@
 bool Input::keys[1024] = {false};
 double Input::lastX = 400.0f;
 double Input::lastY = 300.0f;
-double Input::lastDragX = 0.0f;
-double Input::lastDragY = 0.0f;
+glm::vec2 Input::beginDrag = glm::vec2(0.0f, 0.0f);
+glm::vec2 Input::currentDrag = glm::vec2(0.0f, 0.0f);
+glm::vec2 Input::endDrag = glm::vec2(0.0f, 0.0f);
 float Input::camera_yaw = 0.0f;
 float Input::camera_pitch = 0.0f;
 float Input::model_yaw = 0.0f;
@@ -37,18 +38,20 @@ void	Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
-		Input::lastDragX = xpos;
-		Input::lastDragY = ypos;
+//		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+		Input::beginDrag.x = xpos;
+        Input::beginDrag.y = ypos;
+        Input::currentDrag.x = xpos;
+        Input::currentDrag.y = ypos;
 		Input::keys[GLFW_MOUSE_BUTTON_LEFT] = true;
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
-		Input::lastDragX = xpos;
-		Input::lastDragY = ypos;
+//		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
+		Input::endDrag.x = xpos;
+        Input::endDrag.y = ypos;
 		Input::keys[GLFW_MOUSE_BUTTON_LEFT] = false;
 	}
 
@@ -73,10 +76,14 @@ void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
         Input::model_yaw += xoffset;
         Input::model_pitch += yoffset;
     }
-//	else if (!Input::keys[GLFW_KEY_LEFT_ALT] && Input::keys[GLFW_KEY_LEFT_CONTROL] && Input::keys[GLFW_MOUSE_BUTTON_LEFT])
-//	{
-//		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
-//	}
+	else if (!Input::keys[GLFW_KEY_LEFT_ALT] && Input::keys[GLFW_KEY_LEFT_CONTROL] && Input::keys[GLFW_MOUSE_BUTTON_LEFT])
+	{
+		double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        Input::currentDrag.x = xpos;
+        Input::currentDrag.y = ypos;
+//        std::cout << "Current Drag: " << Input::currentDrag.x << " " << Input::currentDrag.y << std::endl;
+	}
 
 	if (Input::camera_pitch > 89.0f)
 		Input::camera_pitch = 89.0f;
@@ -105,6 +112,14 @@ void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset
 }
 
 void    Input::doMovement(GLFWwindow* window, Camera &camera, Model &model, GUI &gui) {
+    int corner = 0;
+//    if ((corner = gui.isClicked(Input::beginDrag)) != 0) {
+    if ((corner = gui.isClicked(Input::beginDrag)) != 0) {
+//        std::cout << "Clicked " << corner << std::endl;
+//        std::cout << "Current Drag: " << Input::currentDrag.x << " " << Input::currentDrag.y << std::endl;
+        gui.dragResize(Input::beginDrag, Input::currentDrag, corner);
+        beginDrag = currentDrag;
+    }
 	if (Input::keys[GLFW_KEY_LEFT_CONTROL]) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}

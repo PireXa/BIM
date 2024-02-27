@@ -4,11 +4,15 @@
 //	uniform mat4 model;  // Uniform model matrix
 //	uniform mat4 projection;  // Uniform projection matrix
     uniform mat4 vp;  // Uniform view-projection matrix
+    uniform int renderTexture;
 
 	layout (location = 0) in vec3 position;  // Input: Vertex position
 	layout (location = 1) in vec3 uv;     // Input: Vertex color
+	layout (location = 2) in vec3 normal;  // Input: Vertex normal
 
-	out vec2 FragColor;  // Output: TextCoord for fragment shader
+	out vec2 TextureFragColor;  // Output: TextCoord for fragment shader (vec3 for no texture, vec2 for texture)
+    out vec3 NormalFragColor;  // Output: Normal for fragment shader
+    flat out int RenderTexture; // Output: Which render mode to use
 
 	void main() {
 	    // Transform vertex position to camera space
@@ -16,6 +20,7 @@
 
 		vec2 texCoord = uv.xy;
 	    // Pass color to the fragment shader
-	    FragColor = texCoord;
-		//FragColor = uv; // Pass rgb color to the fragment shader (for classic rainbow effect)
+	    TextureFragColor = texCoord; // for texture
+		NormalFragColor = uv; // Pass rgb color to the fragment shader (for no texture)
+		RenderTexture = renderTexture;
 	}

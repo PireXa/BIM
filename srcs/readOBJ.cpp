@@ -121,6 +121,12 @@ void    readOBJ::readVertices()
 			iss >> trash >> trash >> uv.u >> uv.v;
 			this->uvs.push_back(uv);
 		}
+        else if (!line.compare(0, 3, "vn "))
+        {
+            Normal n;
+            iss >> trash >> trash >> n.x >> n.y >> n.z;
+            this->normals.push_back(n);
+        }
 	}
 }
 
@@ -128,7 +134,8 @@ void    readOBJ::readFaces()
 {
 	std::ifstream file(this->filename);
 	std::string line;
-	this->verticesArray = new float[this->faceCount * 18];
+//	this->verticesArray = new float[this->faceCount * 18];
+    this->verticesArray = new float[this->faceCount * 27];
 	int i = 0;
 	while (std::getline(file, line))
 	{
@@ -164,10 +171,7 @@ void    readOBJ::readFaces()
 				verticesArray[i + 1] = vertices[f1 - 1].y;
 				verticesArray[i + 2] = vertices[f1 - 1].z;
 				i += 3;
-				//vertex 1 texture coordinates
-				//verticesArray[i] = 1.0f;
-				//verticesArray[i + 1] = 0.5f;
-				//verticesArray[i + 2] = 0.5f;
+                //vertex 1 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t1 - 1].u;
@@ -181,15 +185,26 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
+                //vertex 1 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n1 - 1].x;
+                    verticesArray[i + 1] = normals[n1 - 1].y;
+                    verticesArray[i + 2] = normals[n1 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 2 coordinates
 				verticesArray[i] = vertices[f2 - 1].x;
 				verticesArray[i + 1] = vertices[f2 - 1].y;
 				verticesArray[i + 2] = vertices[f2 - 1].z;
 				i += 3;
-				//vertex 2 texture coordinates
-				//verticesArray[i] = 0.5f;
-				//verticesArray[i + 1] = 1.0f;
-				//verticesArray[i + 2] = 0.5f;
+                //vertex 2 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t2 - 1].u;
@@ -203,15 +218,26 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
+                //vertex 2 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n2 - 1].x;
+                    verticesArray[i + 1] = normals[n2 - 1].y;
+                    verticesArray[i + 2] = normals[n2 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 3 coordinates
 				verticesArray[i] = vertices[f3 - 1].x;
 				verticesArray[i + 1] = vertices[f3 - 1].y;
 				verticesArray[i + 2] = vertices[f3 - 1].z;
 				i += 3;
-				//vertex 3 texture coordinates
-				//verticesArray[i] = 0.5f;
-				//verticesArray[i + 1] = 0.5f;
-				//verticesArray[i + 2] = 1.0f;
+                //vertex 3 texture coordinates
 				if (!uvs.empty())
 				{
 					verticesArray[i] = uvs[t3 - 1].u;
@@ -225,8 +251,23 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
+                //vertex 3 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n3 - 1].x;
+                    verticesArray[i + 1] = normals[n3 - 1].y;
+                    verticesArray[i + 2] = normals[n3 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				this->vertexCount += 3;
-                this->verticesArraySize += 18;
+//                this->verticesArraySize += 18;
+                this->verticesArraySize += 27;
 			}
 			else
 			{
@@ -250,6 +291,8 @@ void    readOBJ::readFaces()
                     }
 				}
 //				std::cout << f1 << " " << f2 << " " << f3 << " " << f4 << std::endl;
+//                std::cout << t1 << " " << t2 << " " << t3 << " " << t4 << std::endl;
+//                std::cout << n1 << " " << n2 << " " << n3 << " " << n4 << std::endl;
 				//vertex 1 coordinates
 				verticesArray[i] = vertices[f1 - 1].x;
 				verticesArray[i + 1] = vertices[f1 - 1].y;
@@ -269,6 +312,20 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
+                //vertex 1 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n1 - 1].x;
+                    verticesArray[i + 1] = normals[n1 - 1].y;
+                    verticesArray[i + 2] = normals[n1 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 2 coordinates
 				verticesArray[i] = vertices[f2 - 1].x;
 				verticesArray[i + 1] = vertices[f2 - 1].y;
@@ -288,6 +345,20 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
+                //vertex 2 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n2 - 1].x;
+                    verticesArray[i + 1] = normals[n2 - 1].y;
+                    verticesArray[i + 2] = normals[n2 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 3 coordinates
 				verticesArray[i] = vertices[f3 - 1].x;
 				verticesArray[i + 1] = vertices[f3 - 1].y;
@@ -307,6 +378,20 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.0f;
 				}
 				i += 3;
+                //vertex 3 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n3 - 1].x;
+                    verticesArray[i + 1] = normals[n3 - 1].y;
+                    verticesArray[i + 2] = normals[n3 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 4 coordinates
 				verticesArray[i] = vertices[f4 - 1].x;
 				verticesArray[i + 1] = vertices[f4 - 1].y;
@@ -326,6 +411,20 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.5f;
 				}
 				i += 3;
+                //vertex 4 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n4 - 1].x;
+                    verticesArray[i + 1] = normals[n4 - 1].y;
+                    verticesArray[i + 2] = normals[n4 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 5 coordinates
 				verticesArray[i] = vertices[f1 - 1].x;
 				verticesArray[i + 1] = vertices[f1 - 1].y;
@@ -345,6 +444,20 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 0.5f;
 				}
 				i += 3;
+                //vertex 5 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n1 - 1].x;
+                    verticesArray[i + 1] = normals[n1 - 1].y;
+                    verticesArray[i + 2] = normals[n1 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				//vertex 6 coordinates
 				verticesArray[i] = vertices[f3 - 1].x;
 				verticesArray[i + 1] = vertices[f3 - 1].y;
@@ -364,8 +477,23 @@ void    readOBJ::readFaces()
 					verticesArray[i + 2] = 1.0f;
 				}
 				i += 3;
+                //vertex 6 normals
+                if (!normals.empty())
+                {
+                    verticesArray[i] = normals[n3 - 1].x;
+                    verticesArray[i + 1] = normals[n3 - 1].y;
+                    verticesArray[i + 2] = normals[n3 - 1].z;
+                }
+                else
+                {
+                    verticesArray[i] = 0.0f;
+                    verticesArray[i + 1] = 0.0f;
+                    verticesArray[i + 2] = 0.0f;
+                }
+                i += 3;
 				this->vertexCount += 6;
-                this->verticesArraySize += 36;
+//                this->verticesArraySize += 36;
+                this->verticesArraySize += 54;
 			}
 		}
 	}
@@ -373,14 +501,68 @@ void    readOBJ::readFaces()
 
 // verticesArray    vertex1 x, vertex1 y, vertex1 z, vertex1 u, vertex1 v, vertex1 w
 
+//void    readOBJ::PlanarMapping(float resolution)
+//{
+//    for (int i = 0; i < this->verticesArraySize; i += 18)
+//    {
+//        Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
+//        Vertex v2 = {verticesArray[i + 6], verticesArray[i + 7], verticesArray[i + 8]};
+//        Vertex v3 = {verticesArray[i + 12], verticesArray[i + 13], verticesArray[i + 14]};
+//
+//        glm::vec3 edge1 = glm::vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
+//        glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
+//        glm::vec3 normal = glm::cross(edge1, edge2);
+//        normal = glm::normalize(normal);
+//        normal.x = fabs(normal.x);
+//        normal.y = fabs(normal.y);
+//        normal.z = fabs(normal.z);
+//        if (normal.x > normal.y && normal.x > normal.z)
+//        {
+//            verticesArray[i + 3] = v1.y * resolution;
+//            verticesArray[i + 4] = v1.z * resolution;
+//            verticesArray[i + 5] = 0;
+//            verticesArray[i + 9] = v2.y * resolution;
+//            verticesArray[i + 10] = v2.z * resolution;
+//            verticesArray[i + 11] = 0;
+//            verticesArray[i + 15] = v3.y * resolution;
+//            verticesArray[i + 16] = v3.z * resolution;
+//            verticesArray[i + 17] = 0;
+//        }
+//        else if (normal.y > normal.x && normal.y > normal.z)
+//        {
+//            verticesArray[i + 3] = v1.x * resolution;
+//            verticesArray[i + 4] = v1.z * resolution;
+//            verticesArray[i + 5] = 0;
+//            verticesArray[i + 9] = v2.x * resolution;
+//            verticesArray[i + 10] = v2.z * resolution;
+//            verticesArray[i + 11] = 0;
+//            verticesArray[i + 15] = v3.x * resolution;
+//            verticesArray[i + 16] = v3.z * resolution;
+//            verticesArray[i + 17] = 0;
+//        }
+//        else
+//        {
+//            verticesArray[i + 3] = v1.x * resolution;
+//            verticesArray[i + 4] = v1.y * resolution;
+//            verticesArray[i + 5] = 0;
+//            verticesArray[i + 9] = v2.x * resolution;
+//            verticesArray[i + 10] = v2.y * resolution;
+//            verticesArray[i + 11] = 0;
+//            verticesArray[i + 15] = v3.x * resolution;
+//            verticesArray[i + 16] = v3.y * resolution;
+//            verticesArray[i + 17] = 0;
+//        }
+//    }
+//}
+
 void    readOBJ::PlanarMapping(float resolution)
 {
 //    float resolution = 0.3;
-    for (int i = 0; i < this->verticesArraySize; i += 18)
+    for (int i = 0; i < this->verticesArraySize; i += 27)
     {
         Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
-        Vertex v2 = {verticesArray[i + 6], verticesArray[i + 7], verticesArray[i + 8]};
-        Vertex v3 = {verticesArray[i + 12], verticesArray[i + 13], verticesArray[i + 14]};
+        Vertex v2 = {verticesArray[i + 9], verticesArray[i + 10], verticesArray[i + 11]};
+        Vertex v3 = {verticesArray[i + 18], verticesArray[i + 19], verticesArray[i + 20]};
 
         glm::vec3 edge1 = glm::vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
         glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
@@ -394,36 +576,35 @@ void    readOBJ::PlanarMapping(float resolution)
             verticesArray[i + 3] = v1.y * resolution;
             verticesArray[i + 4] = v1.z * resolution;
             verticesArray[i + 5] = 0;
-            verticesArray[i + 9] = v2.y * resolution;
-            verticesArray[i + 10] = v2.z * resolution;
-            verticesArray[i + 11] = 0;
-            verticesArray[i + 15] = v3.y * resolution;
-            verticesArray[i + 16] = v3.z * resolution;
-            verticesArray[i + 17] = 0;
+            verticesArray[i + 12] = v2.y * resolution;
+            verticesArray[i + 13] = v2.z * resolution;
+            verticesArray[i + 14] = 0;
+            verticesArray[i + 21] = v3.y * resolution;
+            verticesArray[i + 22] = v3.z * resolution;
+            verticesArray[i + 23] = 0;
         }
         else if (normal.y > normal.x && normal.y > normal.z)
         {
             verticesArray[i + 3] = v1.x * resolution;
             verticesArray[i + 4] = v1.z * resolution;
             verticesArray[i + 5] = 0;
-            verticesArray[i + 9] = v2.x * resolution;
-            verticesArray[i + 10] = v2.z * resolution;
-            verticesArray[i + 11] = 0;
-            verticesArray[i + 15] = v3.x * resolution;
-            verticesArray[i + 16] = v3.z * resolution;
-            verticesArray[i + 17] = 0;
+            verticesArray[i + 12] = v2.x * resolution;
+            verticesArray[i + 13] = v2.z * resolution;
+            verticesArray[i + 14] = 0;
+            verticesArray[i + 21] = v3.x * resolution;
+            verticesArray[i + 22] = v3.z * resolution;
+            verticesArray[i + 23] = 0;
         }
-        else
-        {
+        else {
             verticesArray[i + 3] = v1.x * resolution;
             verticesArray[i + 4] = v1.y * resolution;
             verticesArray[i + 5] = 0;
-            verticesArray[i + 9] = v2.x * resolution;
-            verticesArray[i + 10] = v2.y * resolution;
-            verticesArray[i + 11] = 0;
-            verticesArray[i + 15] = v3.x * resolution;
-            verticesArray[i + 16] = v3.y * resolution;
-            verticesArray[i + 17] = 0;
+            verticesArray[i + 12] = v2.x * resolution;
+            verticesArray[i + 13] = v2.y * resolution;
+            verticesArray[i + 14] = 0;
+            verticesArray[i + 21] = v3.x * resolution;
+            verticesArray[i + 22] = v3.y * resolution;
+            verticesArray[i + 23] = 0;
         }
     }
 }

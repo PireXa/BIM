@@ -28,12 +28,48 @@ GLuint   ShaderSetups() {
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
+    GLint compileStatus;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
+    if (compileStatus != GL_TRUE) {
+        // Compilation failed, retrieve error log
+        GLint logLength;
+        glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
+        std::vector<GLchar> errorLog(logLength);
+        glGetShaderInfoLog(vertexShader, logLength, NULL, errorLog.data());
 
-	// Compile Fragment Shader
+        // Print error log
+        std::cerr << "Vertex Shader compilation failed:\n" << errorLog.data() << std::endl;
+        // Additional error handling or cleanup if needed
+    }
+    else
+    {
+        std::cout << "Vertex Shader compiled successfully" << std::endl;
+    }
+
+
+    // Compile Fragment Shader
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     const char * fragmentShaderSource = loadShaderFromFile("./srcs/fragmentShader.glsl");
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
+    GLint compileStatus2;
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileStatus2);
+    if (compileStatus2 != GL_TRUE) {
+        // Compilation failed, retrieve error log
+        GLint logLength;
+        glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &logLength);
+        std::vector<GLchar> errorLog(logLength);
+        glGetShaderInfoLog(fragmentShader, logLength, NULL, errorLog.data());
+
+        // Print error log
+        std::cerr << "Fragment Shader compilation failed:\n" << errorLog.data() << std::endl;
+        // Additional error handling or cleanup if needed
+    }
+    else
+    {
+        std::cout << "Fragment Shader compiled successfully" << std::endl;
+    }
+
 
 	// Link Shaders into a Shader Program
 	GLuint shaderProgram = glCreateProgram();
@@ -55,8 +91,8 @@ GLFWwindow *InitalSetup() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-//	GLFWwindow *window = glfwCreateWindow(800, 600, "BIM", nullptr, nullptr);
     GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", nullptr, nullptr);
+//    GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", glfwGetPrimaryMonitor(), nullptr);
 	if (window == nullptr) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -128,10 +164,21 @@ int main(int argc, char** argv) {
     bool animation_end;
     std::cout << "Monitor refresh rate: " << glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate << " Hz" << std::endl;
 	while (!glfwWindowShouldClose(window)) {
+
         animation_end = Animation::InitialAnimation(&camera, model.getCenter(), model.getScale(), &model);
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //Render with texture or normal
+        int renderTexture = 0;
+
+        // Pass the render mode to the shader
+        GLint renderTextureLoc = glGetUniformLocation(shaderProgram, "renderTexture");
+//        std::cout << "Render mode location: " << renderTextureLoc << std::endl;
+
+        //Set the uniform in the shader to the render mode
+        glUniform1i(renderTextureLoc, renderTexture);
 
 		// Update Camera View Matrix
         glm::mat4 viewMatrix;
@@ -168,6 +215,10 @@ int main(int argc, char** argv) {
         // Unbind VAO
         glBindVertexArray(0);
 
+        renderTexture = 1;
+
+        // Pass the render mode to the shader
+        glUniform1i(renderTextureLoc, renderTexture);
 		// FPS calculation
         fpsCounter(lastFPSTime, frameCount, fps);
 
@@ -201,9 +252,6 @@ int main(int argc, char** argv) {
 		ss << std::fixed << std::setprecision(2) << fps;
 		std::string fpsString = ss.str();
 		font.renderText("FPS: " + fpsString, WIN_WIDTH / 25, WIN_HEIGHT - WIN_HEIGHT / 20, 1.00f, shaderProgram);
-		static int x = 0;
-		static int y = 0;
-//		font.renderText("aaaaa", x, y, 10.00f, shaderProgram);
 
         // Draw GUI
         gui.draw();
