@@ -8,6 +8,7 @@
 #include <iostream>
 #include "BIM.hpp"
 #include "stb_image.h"
+#include <map>
 
 class TextFont {
 	private:
@@ -25,7 +26,7 @@ class TextFont {
 		std::map<GLchar, Character> Characters;
 		glm::mat4 matrix;
 	public:
-		TextFont(const char *texturePath) {
+		TextFont(std::string texturePath) {
 
 			// Generate VBO and VAO for the text
 			glGenBuffers(1, &VBO);
@@ -56,7 +57,7 @@ class TextFont {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			// Load and generate the texture
-			unsigned char *data = stbi_load(texturePath, &width, &height, 0, STBI_rgb_alpha);
+			unsigned char *data = stbi_load(texturePath.c_str(), &width, &height, 0, STBI_rgb_alpha);
 			if (data) {
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 				glGenerateMipmap(GL_TEXTURE_2D);
@@ -67,6 +68,10 @@ class TextFont {
 			glBindTexture(GL_TEXTURE_2D, 0);
 
 		    matrix = glm::ortho(0.0f, WIN_WIDTH, 0.0f, WIN_HEIGHT);
+            //.fnt instead of .png
+            std::string fntPath = texturePath.substr(0, texturePath.find_last_of('.'));
+            fntPath += ".fnt";
+            readFNT(fntPath.c_str());
         }
 
 		void	readFNT(const char *fntPath) {
@@ -145,7 +150,7 @@ class TextFont {
 			return matrix;
 		}
 
-		void	renderText(std::string text, float x, float y, float scale, GLuint shaderProgram) {
+		void	renderText(std::string text, float x, float y, float scale) {
 			// Activate corresponding render state
 //			glUseProgram(shaderProgram);
 //			glActiveTexture(GL_TEXTURE0);
@@ -190,12 +195,12 @@ class TextFont {
 				// Update VBO for each character with correct texture coordinates
 				float vertices[36] = {
 						// Position x, y, z, Texture coordinates x, y, z
-						scaledXPos,        scaledYPos,  0.0f, texLeft,  texBottom, 0.0f, // Bottom-left
-						scaledXPos,        scaledYPos + scaledHeight,                0.0f, texLeft,  texTop,    0.0f, // Top-left
-						scaledXPos + scaledWidth, scaledYPos + scaledHeight,         0.0f, texRight, texTop,    0.0f, // Top-right
-						scaledXPos,        scaledYPos,  0.0f, texLeft,  texBottom, 0.0f, // Bottom-left
-						scaledXPos + scaledWidth, scaledYPos + scaledHeight,         0.0f, texRight, texTop,    0.0f, // Top-right
-						scaledXPos + scaledWidth, scaledYPos, 0.0f, texRight, texBottom, 0.0f  // Bottom-right
+						scaledXPos,        scaledYPos,  1.0f, texLeft,  texBottom, 0.0f, // Bottom-left
+						scaledXPos,        scaledYPos + scaledHeight,                1.0f, texLeft,  texTop,    0.0f, // Top-left
+						scaledXPos + scaledWidth, scaledYPos + scaledHeight,         1.0f, texRight, texTop,    0.0f, // Top-right
+						scaledXPos,        scaledYPos,  1.0f, texLeft,  texBottom, 0.0f, // Bottom-left
+						scaledXPos + scaledWidth, scaledYPos + scaledHeight,         1.0f, texRight, texTop,    0.0f, // Top-right
+						scaledXPos + scaledWidth, scaledYPos, 1.0f, texRight, texBottom, 0.0f  // Bottom-right
 				};
 
 				// Render glyph texture over quad

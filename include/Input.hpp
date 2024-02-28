@@ -18,7 +18,6 @@ class Input {
         static double lastY;
         static glm::vec2 beginDrag;
         static glm::vec2 currentDrag;
-        static glm::vec2 endDrag;
         static bool dragging;
         static float camera_yaw;
         static float camera_pitch;
@@ -27,6 +26,10 @@ class Input {
         static float fov;
 		static float moveSpeed;
         static int animationState;
+        static int TextureMode;
+        static int WireframeMode;
+        static int dragType;
+        static bool firstMouse[3];
 
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
         static void mouseCallback(GLFWwindow* window, double xpos, double ypos);

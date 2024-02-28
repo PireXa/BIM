@@ -32,6 +32,7 @@
 #include "DefaultPlane.hpp"
 #include "Font.hpp"
 #include "GUI.hpp"
+#include "Button.hpp"
 
 void    fpsCounter(std::chrono::time_point<std::chrono::high_resolution_clock> &lastFPSTime, int &frameCount, double &fps);
 

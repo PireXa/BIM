@@ -126,6 +126,14 @@ class Model {
             position = glm::vec3(0.0f, 0.0f, 0.0f);
 			center = obj.getCenter();
         }
+
+        void    draw() {
+            glBindVertexArray(VAO);
+            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
+            glDrawArrays(GL_TRIANGLES, 0, obj.getVertexCount());
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindVertexArray(0);
+        }
 };
 
 #endif //BIM_MODEL_HPP

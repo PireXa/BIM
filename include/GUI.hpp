@@ -6,6 +6,7 @@
 #define BIM_GUI_HPP
 
 #include "BIM.hpp"
+#include "Button.hpp"
 
 class GUI {
     private:
@@ -14,10 +15,11 @@ class GUI {
         float vertices[36];
         GLuint VAO, VBO;
         Texture texture;
+        std::vector<Button> buttons;
     public:
         GUI() : texture("./Resources/Textures/pattern4.bmp") {
-            width = 100;
-            height = 100;
+            width = 200;
+            height = 300;
             position = glm::vec2(100.0f, 100.0f);
             vertices[0] = position.x;
             vertices[1] = position.y;
@@ -65,6 +67,7 @@ class GUI {
             glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(3 * sizeof(float)));
             glEnableVertexAttribArray(1);
             glBindVertexArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             glGenTextures(1, texture.getTextureID());
             glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
@@ -74,6 +77,12 @@ class GUI {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
             glBindTexture(GL_TEXTURE_2D, 0);
+
+            buttons.reserve(3); // Reserve memory for 3 Button objects
+
+            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + 200), "NORMAL");
+            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + 120), "WIREFRAME");
+            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + 40), "BUTTON");
         }
 
         ~GUI() {
@@ -114,6 +123,9 @@ class GUI {
             vertices[25] += translation.y;
             vertices[30] += translation.x;
             vertices[31] += translation.y;
+            for (int i = 0; i < buttons.size(); i++) {
+                buttons[i].translate(translation);
+            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -124,6 +136,9 @@ class GUI {
             vertices[6] += width;
             vertices[24] += width;
             vertices[30] += width;
+            for (int i = 0; i < buttons.size(); i++) {
+                buttons[i].translate(glm::vec2(width / 2, 0));
+            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -134,6 +149,9 @@ class GUI {
             vertices[13] += height;
             vertices[19] += height;
             vertices[31] += height;
+            for (int i = 0; i < buttons.size(); i++) {
+                buttons[i].translate(glm::vec2(0, height / 2));
+            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -165,16 +183,33 @@ class GUI {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
+        void    addButton(Button button) {
+            buttons.push_back(button);
+        }
+
         void draw() {
+            //Draw GUI
             glBindVertexArray(VAO);
             glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
             glDrawArrays(GL_TRIANGLES, 0, 6);
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindVertexArray(0);
+
+            //Draw Buttons
+            for (int i = 0; i < buttons.size(); i++) {
+                buttons[i].draw();
+            }
         }
 
         int isClicked(glm::vec2 click) {
             click = glm::vec2(click.x, WIN_HEIGHT - click.y);
+
+            //Check if a button was clicked
+            for (int i = 0; i < buttons.size(); i++) {
+                if (buttons[i].isClicked(click))
+                    return i + 6;
+            }
+
             //Top Right Corner
             glm::vec2 topRight = glm::vec2(position.x + width, position.y + height);
             int boundry = 10;
@@ -198,32 +233,40 @@ class GUI {
             return false;
         }
 
-        void    dragResize(glm::vec2 beginDrag, glm::vec2 currentDrag, int corner)
+        void    dragResize(glm::vec2 beginDrag, glm::vec2 currentDrag, int corner, int dragType)
         {
             beginDrag = glm::vec2(beginDrag.x, WIN_HEIGHT - beginDrag.y);
             currentDrag = glm::vec2(currentDrag.x, WIN_HEIGHT - currentDrag.y);
             glm::vec2 translation = currentDrag - beginDrag;
-            if (corner == 1) {
+            if (corner == 1 && dragType == 1) {
+                if (width + translation.x < 100 || height + translation.y < 100)
+                    return;
                 addWidth(translation.x);
                 addHeight(translation.y);
             }
-            else if (corner == 2) {
+            else if (corner == 2 && dragType == 1) {
+                if (width - translation.x < 100 || height + translation.y < 100)
+                    return;
                 addPositionWidth(translation.x);
                 addWidth(-translation.x);
                 addHeight(translation.y);
             }
-            else if (corner == 3) {
+            else if (corner == 3 && dragType == 1) {
+                if (width + translation.x < 100 || height - translation.y < 100)
+                    return;
                 addPositionHeight(translation.y);
                 addWidth(translation.x);
                 addHeight(-translation.y);
             }
-            else if (corner == 4) {
+            else if (corner == 4 && dragType == 1) {
+                if (width - translation.x < 100 || height - translation.y < 100)
+                    return;
                 addPositionWidth(translation.x);
                 addPositionHeight(translation.y);
                 addWidth(-translation.x);
                 addHeight(-translation.y);
             }
-            else if (corner == 5) {
+            else if (corner == 5 && dragType == 2) {
                 translate(translation);
             }
         }

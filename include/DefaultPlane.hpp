@@ -8,6 +8,7 @@
 #include <iostream>
 #include "GLEW/glew.h"
 #include "Texture.hpp"
+#include "Button.hpp"
 
 class DefaultPlane {
     private:
@@ -84,6 +85,23 @@ class DefaultPlane {
 		int getVertexCount() {
 			return vertexCount;
 		}
+
+        void    draw() {
+            // Bind the texture for the XZ plane
+            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
+
+            // Bind the VAO for the XZ plane
+            glBindVertexArray(VAO);
+
+            // Draw the XZ plane
+            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+            // Unbind the VAO for the XZ plane
+            glBindVertexArray(0);
+
+            // Unbind the texture for the XZ plane
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 };
 
 #endif //BIM_DEFAULTPLANE_HPP
