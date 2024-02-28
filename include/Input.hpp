@@ -30,6 +30,7 @@ class Input {
         static int WireframeMode;
         static int dragType;
         static bool firstMouse[3];
+		static int mouseMode;
 
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
         static void mouseCallback(GLFWwindow* window, double xpos, double ypos);

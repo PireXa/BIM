@@ -80,9 +80,9 @@ class GUI {
 
             buttons.reserve(3); // Reserve memory for 3 Button objects
 
-            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + 200), "NORMAL");
-            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + 120), "WIREFRAME");
-            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + 40), "BUTTON");
+            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + height * 3 / 4 - 25), "NORMAL");
+            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + height * 2 / 4 - 25), "WIREFRAME");
+            buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + height / 4 - 25), "BUTTON");
         }
 
         ~GUI() {
@@ -123,9 +123,6 @@ class GUI {
             vertices[25] += translation.y;
             vertices[30] += translation.x;
             vertices[31] += translation.y;
-            for (int i = 0; i < buttons.size(); i++) {
-                buttons[i].translate(translation);
-            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -136,9 +133,6 @@ class GUI {
             vertices[6] += width;
             vertices[24] += width;
             vertices[30] += width;
-            for (int i = 0; i < buttons.size(); i++) {
-                buttons[i].translate(glm::vec2(width / 2, 0));
-            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -149,9 +143,6 @@ class GUI {
             vertices[13] += height;
             vertices[19] += height;
             vertices[31] += height;
-            for (int i = 0; i < buttons.size(); i++) {
-                buttons[i].translate(glm::vec2(0, height / 2));
-            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -243,22 +234,27 @@ class GUI {
                     return;
                 addWidth(translation.x);
                 addHeight(translation.y);
+//				for (int i = 0; i < buttons.size(); i++)
+//				{
+//					buttons[i].setPosition(glm::vec2(position.x - 50 + width / 2, position.y + height * (3 - i) / 4 - 25));
+//				}
             }
-            else if (corner == 2 && dragType == 1) {
+            else if (corner == 2 && dragType == 2) {
                 if (width - translation.x < 100 || height + translation.y < 100)
                     return;
                 addPositionWidth(translation.x);
                 addWidth(-translation.x);
                 addHeight(translation.y);
             }
-            else if (corner == 3 && dragType == 1) {
+            else if (corner == 3 && dragType == 3) {
                 if (width + translation.x < 100 || height - translation.y < 100)
                     return;
                 addPositionHeight(translation.y);
                 addWidth(translation.x);
                 addHeight(-translation.y);
+
             }
-            else if (corner == 4 && dragType == 1) {
+            else if (corner == 4 && dragType == 4) {
                 if (width - translation.x < 100 || height - translation.y < 100)
                     return;
                 addPositionWidth(translation.x);
@@ -266,9 +262,11 @@ class GUI {
                 addWidth(-translation.x);
                 addHeight(-translation.y);
             }
-            else if (corner == 5 && dragType == 2) {
+            else if (corner == 5 && dragType == 5) {
                 translate(translation);
             }
+			for (int i = 0; i < buttons.size(); i++)
+				buttons[i].setPosition(glm::vec2(position.x - 50 + width / 2, position.y + height * (3 - i) / 4 - 25));
         }
 };
 
