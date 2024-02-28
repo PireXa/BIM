@@ -118,6 +118,7 @@ GLFWwindow *InitalSetup() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Hide the cursor and lock it to the window
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 	return window;
@@ -153,7 +154,6 @@ int main(int argc, char** argv) {
 												  0.1f, 1000.0f);        // Near and far planes
 
 	TextFont font("./Fonts/Font3.png");
-	font.readFNT("./Fonts/Font3.fnt");
 
     GUI gui;
 
@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //Render with texture or normal
-        int renderTexture = 0;
+        int renderTexture = Input::TextureMode;
 
         // Pass the render mode to the shader
         GLint renderTextureLoc = glGetUniformLocation(shaderProgram, "renderTexture");
@@ -200,25 +200,20 @@ int main(int argc, char** argv) {
 		// Use the shader program and VAO
 		glUseProgram(shaderProgram);
 
-        // Bind Model VAO
-		glBindVertexArray(model.getVAO());
+        if (Input::WireframeMode)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        // Bind texture for the Model
-        glBindTexture(GL_TEXTURE_2D, *model.getTexture().getTextureID());
+        model.draw();
 
-		// Draw the triangle
-		glDrawArrays(GL_TRIANGLES, 0, model.getObj().getVertexCount());
-
-        // Unbind Texture
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        // Unbind VAO
-        glBindVertexArray(0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         renderTexture = 1;
 
         // Pass the render mode to the shader
         glUniform1i(renderTextureLoc, renderTexture);
+
 		// FPS calculation
         fpsCounter(lastFPSTime, frameCount, fps);
 
@@ -226,24 +221,9 @@ int main(int argc, char** argv) {
 		// Set the uniform in the shader to the MVP matrix for the XZ plane
         glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(planeMatrix));
 
-        // Bind the texture for the XZ plane
-		glBindTexture(GL_TEXTURE_2D, *defaultPlane.getTexture().getTextureID());
+        defaultPlane.draw();
 
-		// Bind the VAO for the XZ plane
-        glBindVertexArray(defaultPlane.getVAO());
-
-//        glEnable(GL_CULL_FACE);
-
-		// Draw the XZ plane
-        glDrawArrays(GL_TRIANGLES, 0, defaultPlane.getVertexCount());
-
-//        glDisable(GL_CULL_FACE);
-
-        // Unbind the VAO for the XZ plane
-		glBindVertexArray(0);
-
-		// Unbind the texture for the XZ plane
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_DEPTH_TEST);
 
         // Set the uniform in the shader to the MVP matrix for the text
 		glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(textMatrix));
@@ -251,10 +231,12 @@ int main(int argc, char** argv) {
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << fps;
 		std::string fpsString = ss.str();
-		font.renderText("FPS: " + fpsString, WIN_WIDTH / 25, WIN_HEIGHT - WIN_HEIGHT / 20, 1.00f, shaderProgram);
+		font.renderText("FPS: " + fpsString, WIN_WIDTH / 25, WIN_HEIGHT - WIN_HEIGHT / 20, 1.00f);
 
         // Draw GUI
         gui.draw();
+
+        glEnable(GL_DEPTH_TEST);
 
         if (!animation_end)
         {
