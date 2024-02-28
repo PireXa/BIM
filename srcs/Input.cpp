@@ -7,7 +7,7 @@
 bool Input::keys[1024] = {false};
 double Input::lastX = 400.0f;
 double Input::lastY = 300.0f;
-int Input::dragType = 0; // 0 = None, 1 = Corner, 2 = Body
+int Input::dragType = 0; // 0 = None, 1 = TopRight, 2 = TopLeft, 3 = BottomRight, 4 = BottomLeft, 5 = Center
 glm::vec2 Input::beginDrag = glm::vec2(0.0f, 0.0f);
 glm::vec2 Input::currentDrag = glm::vec2(0.0f, 0.0f);
 float Input::camera_yaw = 0.0f;
@@ -20,6 +20,7 @@ int Input::animationState = 1;
 int Input::TextureMode = 1; // 1 = Texture, 0 = Use Normal
 int Input::WireframeMode = 0; // 1 = Wireframe, 0 = Fill
 bool Input::firstMouse[3] = {false, false, false};
+int Input::mouseMode = 0; // Toggle Mouse Mode: 0 = Control Cursor, 1 = Control Camera
 
 void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key >= 0 && key < 1024) {
@@ -39,7 +40,13 @@ void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action
             else
                 Input::TextureMode = 1;
         }
-
+		if (key == GLFW_KEY_LEFT_CONTROL && action == GLFW_PRESS)
+		{
+			if (Input::mouseMode == 0)
+				Input::mouseMode = 1;
+			else if (Input::mouseMode == 1)
+				Input::mouseMode = 0;
+		}
         if (action == GLFW_PRESS)
         {
             Input::keys[key] = true;
@@ -85,23 +92,22 @@ void Input::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
 	xoffset *= SENSITIVITY;
 	yoffset *= SENSITIVITY;
 
-    if (!Input::keys[GLFW_KEY_LEFT_ALT] && !Input::keys[GLFW_KEY_LEFT_CONTROL]) // Negate Input from cntrl to invert default mouse movement to control camera
-    {
-        Input::camera_yaw += xoffset;
-        Input::camera_pitch += yoffset;
-    }
-    else if (Input::keys[GLFW_KEY_LEFT_ALT] && !Input::keys[GLFW_KEY_LEFT_CONTROL])
-    {
-        Input::model_yaw += xoffset;
-        Input::model_pitch += yoffset;
-    }
-	else if (!Input::keys[GLFW_KEY_LEFT_ALT] && Input::keys[GLFW_KEY_LEFT_CONTROL] && Input::keys[GLFW_MOUSE_BUTTON_LEFT]) // Negate Input from cntrl to invert default mouse movement to cursor mode
+	if (!Input::keys[GLFW_KEY_LEFT_ALT] && Input::mouseMode == 1)
+	{
+		Input::camera_yaw += xoffset;
+		Input::camera_pitch += yoffset;
+	}
+	else if (Input::keys[GLFW_KEY_LEFT_ALT] && Input::mouseMode == 1)
+	{
+		Input::model_yaw += xoffset;
+		Input::model_pitch += yoffset;
+	}
+	else if (!Input::keys[GLFW_KEY_LEFT_ALT] && Input::mouseMode == 0 && Input::keys[GLFW_MOUSE_BUTTON_LEFT])
 	{
 		double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        Input::currentDrag.x = xpos;
-        Input::currentDrag.y = ypos;
-//        std::cout << "Current Drag: " << Input::currentDrag.x << " " << Input::currentDrag.y << std::endl;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		Input::currentDrag.x = xpos;
+		Input::currentDrag.y = ypos;
 	}
 
 	if (Input::camera_pitch > 89.0f)
@@ -135,10 +141,7 @@ void    Input::doMovement(GLFWwindow* window, Camera &camera, Model &model, GUI 
     if ((corner = gui.isClicked(Input::beginDrag)) > 0 && corner <= 5 && Input::keys[GLFW_MOUSE_BUTTON_LEFT]) {
         if (Input::dragType == 0)
         {
-            if (corner == 5)
-                Input::dragType = 2;
-            else
-                Input::dragType = 1;
+            Input::dragType = corner;
         }
         gui.dragResize(Input::beginDrag, Input::currentDrag, corner, Input::dragType);
         beginDrag = currentDrag;
@@ -146,30 +149,30 @@ void    Input::doMovement(GLFWwindow* window, Camera &camera, Model &model, GUI 
     else if (corner > 5 && Input::keys[GLFW_MOUSE_BUTTON_LEFT])
     {
         int buttonPressed = corner - 6;
-        if (buttonPressed == 0 && !Input::firstMouse[0])
-        {
-            Input::firstMouse[0] = true;
-            if (Input::TextureMode == 1)
-                Input::TextureMode = 0;
-            else
-                Input::TextureMode = 1;
-        }
-        else if (buttonPressed == 1 && !Input::firstMouse[1])
-        {
-            Input::firstMouse[1] = true;
-            if (Input::WireframeMode == 1)
-                Input::WireframeMode = 0;
-            else
-                Input::WireframeMode = 1;
-        }
+		if (Input::dragType == 0)
+		{
+			if (buttonPressed == 0 && !Input::firstMouse[0])
+			{
+				Input::firstMouse[0] = true;
+				if (Input::TextureMode == 1)
+					Input::TextureMode = 0;
+				else
+					Input::TextureMode = 1;
+			}
+			else if (buttonPressed == 1 && !Input::firstMouse[1])
+			{
+				Input::firstMouse[1] = true;
+				if (Input::WireframeMode == 1)
+					Input::WireframeMode = 0;
+				else
+					Input::WireframeMode = 1;
+			}
+		}
     }
-    //Negate Input from cntrl to invert default camera movement to control camera
-	if (Input::keys[GLFW_KEY_LEFT_CONTROL]) {
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	}
-	else {
+	if (Input::mouseMode == 1)
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
+	else
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	if (Input::keys[GLFW_KEY_Q]) {
 		camera.translate(0.0f, 0.0f, -camera.getMoveSpeed());
 	}
