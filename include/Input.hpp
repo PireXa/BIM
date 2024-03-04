@@ -9,7 +9,6 @@
 #include "glMath.hpp"
 #include "Model.hpp"
 #include "Camera.hpp"
-#include "GUI.hpp"
 
 class Input {
     public:
@@ -31,12 +30,13 @@ class Input {
         static int dragType;
         static bool firstMouse[3];
 		static int mouseMode;
+        static float xoffset;
+        static float yoffset;
 
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
         static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
         static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-        static void doMovement(GLFWwindow* window,Camera &camera, Model &model, GUI &gui);
-		static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+        static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 };
 
 #endif //BIM_INPUT_HPP

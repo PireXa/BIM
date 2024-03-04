@@ -6,7 +6,6 @@
 #define BIM_GUI_HPP
 
 #include "BIM.hpp"
-#include "Button.hpp"
 
 class GUI {
     private:
@@ -17,7 +16,7 @@ class GUI {
         Texture texture;
         std::vector<Button> buttons;
     public:
-        GUI() : texture("./Resources/Textures/pattern4.bmp") {
+        GUI(const char *texturePath) : texture(texturePath) {
             width = 200;
             height = 300;
             position = glm::vec2(100.0f, 100.0f);
@@ -188,6 +187,20 @@ class GUI {
 
             //Draw Buttons
             for (int i = 0; i < buttons.size(); i++) {
+                if (i == 0)
+                {
+                    if (Input::TextureMode == 1)
+                        buttons[i].setLabel("TEXTURE");
+                    else
+                        buttons[i].setLabel("NORMAL");
+                }
+                else if (i == 1)
+                {
+                    if (Input::WireframeMode == 1)
+                        buttons[i].setLabel("WIREFRAME");
+                    else
+                        buttons[i].setLabel("FILLED BODY");
+                }
                 buttons[i].draw();
             }
         }
@@ -234,10 +247,6 @@ class GUI {
                     return;
                 addWidth(translation.x);
                 addHeight(translation.y);
-//				for (int i = 0; i < buttons.size(); i++)
-//				{
-//					buttons[i].setPosition(glm::vec2(position.x - 50 + width / 2, position.y + height * (3 - i) / 4 - 25));
-//				}
             }
             else if (corner == 2 && dragType == 2) {
                 if (width - translation.x < 100 || height + translation.y < 100)

@@ -35,7 +35,7 @@ class Model {
 			glDeleteBuffers(1, &VBO);
 		}
 
-        void    vertexBufferSetup(GLuint shaderProgram);
+        void    vertexBufferSetup();
 
         glm::vec3 getCenter() {
             return center;

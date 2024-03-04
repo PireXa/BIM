@@ -99,6 +99,10 @@ class Button {
             return texture;
         }
 
+        const char *getLabel() {
+            return label;
+        }
+
 		void    translate(glm::vec2 translation) {
 			position += translation;
 			vertices[0] += translation.x;
@@ -202,6 +206,10 @@ class Button {
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 6, vertices, GL_STATIC_DRAW);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
+
+        void    setLabel(const char *label) {
+            this->label = label;
+        }
 
 		void draw() {
 			//Draw Button Background

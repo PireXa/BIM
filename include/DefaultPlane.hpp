@@ -27,6 +27,32 @@ class DefaultPlane {
 		Texture texture;
 	public:
 		DefaultPlane(const char *texturePath) : texture(texturePath) {
+
+            // Generate texture ID for the XZ plane
+            glGenTextures(1, texture.getTextureID());
+
+            // Bind the texture and set its parameters
+            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // Load texture data into the texture object
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
+
+            // Unbind the texture
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            //Adjust the texture coordinates to fit the texture
+            float textureAspectRatio = (float)texture.getWidth() / (float)texture.getHeight();
+            vertices[10] = textureAspectRatio * 40.0f;
+            vertices[15] = 40.0f;
+            vertices[21] = 40.0f;
+            vertices[28] = textureAspectRatio * 40.0f;
+            vertices[33] = 40.0f;
+            vertices[34] = textureAspectRatio * 40.0f;
+
 			// Generate VBO and VAO for the XZ plane
 			glGenBuffers(1, &VBO);
 			glGenVertexArrays(1, &VAO);
@@ -47,22 +73,6 @@ class DefaultPlane {
 			// Unbind VAO and VBO for the XZ plane
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
-
-			// Generate texture ID for the XZ plane
-			glGenTextures(1, texture.getTextureID());
-
-			// Bind the texture and set its parameters
-			glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-			// Load texture data into the texture object
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
-
-			// Unbind the texture
-			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
 		~DefaultPlane() {
@@ -85,6 +95,10 @@ class DefaultPlane {
 		int getVertexCount() {
 			return vertexCount;
 		}
+
+        float *getVertices() {
+            return vertices;
+        }
 
         void    draw() {
             // Bind the texture for the XZ plane

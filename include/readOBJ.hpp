@@ -36,7 +36,12 @@ class readOBJ {
             CalculateCenter();
             CalculateBoundingBox();
             if (uvs.size() == 0) {
+                std::cout << "No UVs found, generating planar mapping" << std::endl;
                 PlanarMapping(resolution);
+            }
+            if (normals.size() == 0) {
+                std::cout << "No normals found, generating normals" << std::endl;
+                CalculateNormals();
             }
 			std::cout << "Face count: " << faceCount << std::endl;
 		}
@@ -52,6 +57,7 @@ class readOBJ {
         void    PlanarMapping(float resolution);
         void    CalculateCenter();
         void    CalculateBoundingBox();
+        void    CalculateNormals();
 };
 
 #endif //BIM_READOBJ_HPP
