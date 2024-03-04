@@ -499,62 +499,6 @@ void    readOBJ::readFaces()
 	}
 }
 
-// verticesArray    vertex1 x, vertex1 y, vertex1 z, vertex1 u, vertex1 v, vertex1 w
-
-//void    readOBJ::PlanarMapping(float resolution)
-//{
-//    for (int i = 0; i < this->verticesArraySize; i += 18)
-//    {
-//        Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
-//        Vertex v2 = {verticesArray[i + 6], verticesArray[i + 7], verticesArray[i + 8]};
-//        Vertex v3 = {verticesArray[i + 12], verticesArray[i + 13], verticesArray[i + 14]};
-//
-//        glm::vec3 edge1 = glm::vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
-//        glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
-//        glm::vec3 normal = glm::cross(edge1, edge2);
-//        normal = glm::normalize(normal);
-//        normal.x = fabs(normal.x);
-//        normal.y = fabs(normal.y);
-//        normal.z = fabs(normal.z);
-//        if (normal.x > normal.y && normal.x > normal.z)
-//        {
-//            verticesArray[i + 3] = v1.y * resolution;
-//            verticesArray[i + 4] = v1.z * resolution;
-//            verticesArray[i + 5] = 0;
-//            verticesArray[i + 9] = v2.y * resolution;
-//            verticesArray[i + 10] = v2.z * resolution;
-//            verticesArray[i + 11] = 0;
-//            verticesArray[i + 15] = v3.y * resolution;
-//            verticesArray[i + 16] = v3.z * resolution;
-//            verticesArray[i + 17] = 0;
-//        }
-//        else if (normal.y > normal.x && normal.y > normal.z)
-//        {
-//            verticesArray[i + 3] = v1.x * resolution;
-//            verticesArray[i + 4] = v1.z * resolution;
-//            verticesArray[i + 5] = 0;
-//            verticesArray[i + 9] = v2.x * resolution;
-//            verticesArray[i + 10] = v2.z * resolution;
-//            verticesArray[i + 11] = 0;
-//            verticesArray[i + 15] = v3.x * resolution;
-//            verticesArray[i + 16] = v3.z * resolution;
-//            verticesArray[i + 17] = 0;
-//        }
-//        else
-//        {
-//            verticesArray[i + 3] = v1.x * resolution;
-//            verticesArray[i + 4] = v1.y * resolution;
-//            verticesArray[i + 5] = 0;
-//            verticesArray[i + 9] = v2.x * resolution;
-//            verticesArray[i + 10] = v2.y * resolution;
-//            verticesArray[i + 11] = 0;
-//            verticesArray[i + 15] = v3.x * resolution;
-//            verticesArray[i + 16] = v3.y * resolution;
-//            verticesArray[i + 17] = 0;
-//        }
-//    }
-//}
-
 void    readOBJ::PlanarMapping(float resolution)
 {
 //    float resolution = 0.3;
@@ -606,5 +550,32 @@ void    readOBJ::PlanarMapping(float resolution)
             verticesArray[i + 22] = v3.y * resolution;
             verticesArray[i + 23] = 0;
         }
+    }
+}
+
+void    readOBJ::CalculateNormals()
+{
+    for (int i = 0; i < this->verticesArraySize; i += 27)
+    {
+        Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
+        Vertex v2 = {verticesArray[i + 9], verticesArray[i + 10], verticesArray[i + 11]};
+        Vertex v3 = {verticesArray[i + 18], verticesArray[i + 19], verticesArray[i + 20]};
+
+        glm::vec3 edge1 = glm::vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
+        glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
+        glm::vec3 normal = glm::cross(edge1, edge2);
+        normal = glm::normalize(normal);
+        normal.x = (normal.x + 1) / 2;
+        normal.y = (normal.y + 1) / 2;
+        normal.z = (normal.z + 1) / 2;
+        verticesArray[i + 6] = normal.x;
+        verticesArray[i + 7] = normal.y;
+        verticesArray[i + 8] = normal.z;
+        verticesArray[i + 15] = normal.x;
+        verticesArray[i + 16] = normal.y;
+        verticesArray[i + 17] = normal.z;
+        verticesArray[i + 24] = normal.x;
+        verticesArray[i + 25] = normal.y;
+        verticesArray[i + 26] = normal.z;
     }
 }

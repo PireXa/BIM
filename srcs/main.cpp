@@ -141,21 +141,18 @@ int main(int argc, char** argv) {
         debian_filename = argv[1];
     }
     Model model("./Resources/Textures/zebra.bmp", debian_filename, 0.3f);
-    model.vertexBufferSetup(shaderProgram);
+    model.vertexBufferSetup();
 
-	DefaultPlane defaultPlane("./Resources/Textures/pattern5.bmp");
+	DefaultPlane defaultPlane("./Resources/Textures/vaporwavegrid.bmp");
 
 	// Set up the projection matrix
-//	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
-//												  800.0f / 600.0f,          // Aspect ratio
-//												  0.1f, 1000.0f);        // Near and far planes
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
 												  WIN_WIDTH / WIN_HEIGHT,          // Aspect ratio
 												  0.1f, 1000.0f);        // Near and far planes
 
 	TextFont font("./Fonts/Font3.png");
 
-    GUI gui;
+    GUI gui("./Resources/Textures/pattern4.bmp");
 
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -175,7 +172,6 @@ int main(int argc, char** argv) {
 
         // Pass the render mode to the shader
         GLint renderTextureLoc = glGetUniformLocation(shaderProgram, "renderTexture");
-//        std::cout << "Render mode location: " << renderTextureLoc << std::endl;
 
         //Set the uniform in the shader to the render mode
         glUniform1i(renderTextureLoc, renderTexture);
@@ -233,8 +229,16 @@ int main(int argc, char** argv) {
 		std::string fpsString = ss.str();
 		font.renderText("FPS: " + fpsString, WIN_WIDTH / 25, WIN_HEIGHT - WIN_HEIGHT / 20, 1.00f);
 
+        //GUI Transparency based on Mouse Mode (0 = Control Cursor, 1 = Control Camera) CTRL to toggle
+        if (Input::mouseMode == 0)
+            glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0); //Non-Transparent
+        else
+            glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 1); //Transparent
+
         // Draw GUI
         gui.draw();
+
+        glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0);
 
         glEnable(GL_DEPTH_TEST);
 
@@ -247,7 +251,8 @@ int main(int argc, char** argv) {
             glfwSetCursorPosCallback(window, Input::mouseCallback);
             glfwSetScrollCallback(window, Input::scrollCallback);
             camera.setMoveSpeed(Input::moveSpeed);
-            Input::doMovement(window, camera, model, gui);
+//            Input::doMovement(window, camera, model, gui);
+            updateStates(window, camera, model, gui);
         }
 
         // Swap buffers and poll events
