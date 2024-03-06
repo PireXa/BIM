@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
     Model model("./Resources/Textures/zebra.bmp", debian_filename, 0.3f);
     model.vertexBufferSetup();
 
-	DefaultPlane defaultPlane("./Resources/Textures/vaporwavegrid.bmp");
+	DefaultPlane defaultPlane("./Resources/Textures/centipede-grass.bmp");
 
 	// Set up the projection matrix
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
@@ -152,11 +152,13 @@ int main(int argc, char** argv) {
 
 	TextFont font("./Fonts/Font3.png");
 
-    GUI gui("./Resources/Textures/pattern4.bmp");
+    GUI gui("./Resources/Textures/Backwall.bmp");
 
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
 	double fps = 0;
+
+    RenderBatch modelBatch(model.getObj().getVerticesArray(), model.getObj().getVertexCount(), *model.getTexture().getTextureID());
 
     bool animation_end;
     std::cout << "Monitor refresh rate: " << glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate << " Hz" << std::endl;
@@ -201,7 +203,7 @@ int main(int argc, char** argv) {
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        model.draw();
+        modelBatch.draw();
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -250,9 +252,13 @@ int main(int argc, char** argv) {
 			glfwSetMouseButtonCallback(window, Input::Input::mouseButtonCallback);
             glfwSetCursorPosCallback(window, Input::mouseCallback);
             glfwSetScrollCallback(window, Input::scrollCallback);
+            glfwSetDropCallback(window, Input::dropCallback);
             camera.setMoveSpeed(Input::moveSpeed);
-//            Input::doMovement(window, camera, model, gui);
             updateStates(window, camera, model, gui);
+            if (mouseIntersectModel(window, model, mvpMatrix))
+                updateModel(window, model, modelBatch);
+            else
+                Input::dropPosition = glm::vec2(-500.0f, -500.0f);
         }
 
         // Swap buffers and poll events

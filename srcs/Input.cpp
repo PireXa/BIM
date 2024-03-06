@@ -20,16 +20,18 @@ float Input::moveSpeed = 0.2f;
 int Input::animationState = 1;
 int Input::TextureMode = 1; // 1 = Texture, 0 = Use Normal
 int Input::WireframeMode = 0; // 1 = Wireframe, 0 = Fill
-bool Input::firstMouse[3] = {false, false, false};
+bool Input::firstMouse[3] = {false, false, false}; // Button Array: 0 = Texture, 1 = Wireframe
 int Input::mouseMode = 0; // Toggle Mouse Mode: 0 = Control Cursor, 1 = Control Camera
 float Input::xoffset = 0.0f;
 float Input::yoffset = 0.0f;
+std::vector<std::string> Input::filePaths;
+glm::vec2 Input::dropPosition = glm::vec2(0.0f, 0.0f);
 
 void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key >= 0 && key < 1024) {
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
-        if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
+        if (key == GLFW_KEY_M && action == GLFW_PRESS)
         {
             if (Input::WireframeMode == 0)
                 Input::WireframeMode = 1;
@@ -66,7 +68,6 @@ void	Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
-//		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
 		Input::beginDrag.x = xpos;
         Input::beginDrag.y = ypos;
         Input::currentDrag.x = xpos;
@@ -75,14 +76,9 @@ void	Input::mouseButtonCallback(GLFWwindow* window, int button, int action, int 
 	}
 	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-//		std::cout << "x: " << xpos << " y: " << ypos << std::endl;
 		Input::keys[GLFW_MOUSE_BUTTON_LEFT] = false;
         Input::dragType = 0;
         std::fill(Input::firstMouse, Input::firstMouse + 3, false);
-//        for (int i = 0; i < 3; i++)
-//            Input::firstMouse[i] = false;
 	}
 }
 
@@ -139,4 +135,13 @@ void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset
 	if (Input::moveSpeed <= 0.001f)
 		Input::moveSpeed = 0.02f;
     Input::animationState = 0;
+}
+
+void    Input::dropCallback(GLFWwindow* window, int count, const char** paths) {
+//    for (int i = 0; i < count; i++)
+//        std::cout << paths[i] << std::endl;
+    Input::filePaths = std::vector<std::string>(paths, paths + count);
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    Input::dropPosition = glm::vec2(xpos, ypos);
 }

@@ -110,3 +110,67 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
         Input::model_yaw = 0.0f;
     }
 }
+
+void    updateModel(GLFWwindow *window, Model &model, RenderBatch &modelBatch)
+{
+    if (Input::filePaths.size() > 0)
+    {
+        for (int i = 0; i < Input::filePaths.size(); i++)
+        {
+            if (Input::filePaths[i].find(".obj") != std::string::npos)
+            {
+                model.setOBJ(Input::filePaths[i]);
+                model.setCenter(model.getObj().getCenter());
+                model.setBoundingBox(model.getObj().getBoundingBox());
+                model.setScale(model.getObj().getBoundingBox().max.x - model.getObj().getBoundingBox().min.x);
+                modelBatch.setVertices(model.getObj().getVerticesArray(), model.getObj().getVertexCount());
+            }
+            else if (Input::filePaths[i].find(".bmp") != std::string::npos)
+            {
+//                std::cout << "Texture: " << Input::filePaths[i] << std::endl;
+                model.setTexture(Input::filePaths[i].c_str());
+                modelBatch.setTexture(*model.getTexture().getTextureID());
+                glGenTextures(1, model.getTexture().getTextureID());
+                glBindTexture(GL_TEXTURE_2D, *model.getTexture().getTextureID());
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, model.getTexture().getWidth(), model.getTexture().getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, model.getTexture().getPixels().data());
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+        }
+        Input::filePaths.clear();
+        Input::dropPosition = glm::vec2(-500.0f, -500.0f);
+    }
+}
+
+bool mouseIntersectModel(GLFWwindow *window, Model &model, glm::mat4 &mvpMatrix) {
+    if (Input::dropPosition.x == -500.0f && Input::dropPosition.y == -500.0f)
+        return false;
+    //Calculate the mvpMatrix Inverse
+    glm::mat4 invMVP = glm::inverse(mvpMatrix);
+    //Calculate the ray direction
+    // Normalize mouse coordinates to range [-1, 1]
+    float x = (2.0f * Input::dropPosition.x) / WIN_WIDTH - 1.0f;
+    float y = 1.0f - (2.0f * Input::dropPosition.y) / WIN_HEIGHT;
+
+    // Construct near and far points in screen space
+    glm::vec4 nearPoint = glm::vec4(x, y, -1.0f, 1.0f);
+    glm::vec4 farPoint = glm::vec4(x, y, 1.0f, 1.0f);
+
+    // Transform points to world space
+    glm::vec4 nearWorld = invMVP * nearPoint;
+    glm::vec4 farWorld = invMVP * farPoint;
+
+    // Convert to homogeneous coordinates
+    nearWorld /= nearWorld.w;
+    farWorld /= farWorld.w;
+
+    // Construct ray
+    glm::vec3 origin = glm::vec3(nearWorld);
+    glm::vec3 direction = glm::normalize(glm::vec3(farWorld - nearWorld));
+
+    //Check if the ray intersects the model
+    return (model.intersectRay(origin, direction));
+}
