@@ -19,7 +19,7 @@ class Button {
         TextFont font;
         const char *label;
     public:
-        Button(int width, int height, glm::vec2 position, const char *Label) : width(width), height(height), position(position), texture("./Resources/Textures/bluemetal.bmp"), font("./Fonts/Font3.png"), label(Label) {
+        Button(int width, int height, glm::vec2 position, const char *Label) : width(width), height(height), position(position), texture("./Resources/Textures/Button.bmp"), font("./Fonts/Font3.png"), label(Label) {
             vertices[0] = position.x;
             vertices[1] = position.y;
             vertices[2] = 0.0f;

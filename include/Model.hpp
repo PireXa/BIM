@@ -78,6 +78,18 @@ class Model {
             scale = glm::length(boundingBox.max - boundingBox.min);
         }
 
+        void    setOBJ(std::string path) {
+            this->obj = readOBJ(path.c_str(), 0.3f);
+        }
+
+        void    setScale(float scale) {
+            this->scale = scale;
+        }
+
+        void    setTexture(const char *path) {
+            texture = Texture(path);
+        }
+
         void    rotate(float angle, float x, float y, float z) {
             glm::quat rotation = glm::angleAxis(angle, glm::vec3(x, y, z));
             orientation = rotation * orientation;
@@ -133,6 +145,32 @@ class Model {
             glDrawArrays(GL_TRIANGLES, 0, obj.getVertexCount());
             glBindTexture(GL_TEXTURE_2D, 0);
             glBindVertexArray(0);
+        }
+
+        //check if ray intersects with model using Moeller-Trumbore algorithm
+        bool intersectRay(glm::vec3 origin, glm::vec3 direction)
+        {
+            for (int i = 0; i < obj.getVerticesArraySize(); i += 27)
+            {
+                glm::vec3 v0 = glm::vec3(obj.getVerticesArray()[i], obj.getVerticesArray()[i + 1], obj.getVerticesArray()[i + 2]);
+                glm::vec3 v1 = glm::vec3(obj.getVerticesArray()[i + 9], obj.getVerticesArray()[i + 10], obj.getVerticesArray()[i + 11]);
+                glm::vec3 v2 = glm::vec3(obj.getVerticesArray()[i + 18], obj.getVerticesArray()[i + 19], obj.getVerticesArray()[i + 20]);
+                glm::vec3 e1 = v1 - v0;
+                glm::vec3 e2 = v2 - v0;
+                glm::vec3 h = glm::cross(direction, e2);
+                float a = glm::dot(e1, h);
+                if (fabs(a) > -0.00001)
+                {
+                    glm::vec3 s = origin - v0;
+                    glm::vec3 q = glm::cross(s, e1);
+                    float u = glm::dot(h, s) / a;
+                    float v = glm::dot(q, direction) / a;
+                    float t = glm::dot(q, e2) / a;
+                    if (t >= 0.0f && u >= 0.0f && v >= 0.0f && u + v <= 1.0f)
+                        return true;
+                }
+            }
+            return false;
         }
 };
 
