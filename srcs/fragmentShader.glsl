@@ -5,7 +5,7 @@
     flat in int	RenderTexture; // Input: Which texture to use (0 for no texture, 1 for texture)
     flat in int GUITransparency; // Input: Whether to use transparency or not
 
-	uniform sampler2D textureSampler;  // Texture sampler
+	uniform sampler2D textureSampler; // Texture sampler
 
     out vec4 FinalColor;  // Output: Final fragment color
 

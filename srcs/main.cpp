@@ -7,6 +7,10 @@
 #include <GL/glx.h>
 #include <GL/glu.h>
 
+void	printColoredText(const char *text, int r, int g, int b) {
+	std::cout << "\033[38;2;" << r << ";" << g << ";" << b << "m" << text << "\033[0m";
+}
+
 const char * loadShaderFromFile(const char* filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -24,6 +28,7 @@ const char * loadShaderFromFile(const char* filename) {
 
 GLuint   ShaderSetups() {
 	// Compile Vertex Shader
+	printColoredText("Compiling Vertex Shader\n", 0, 140, 255);
     const char * vertexShaderSource = loadShaderFromFile("./srcs/vertexShader.glsl");
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
@@ -38,16 +43,22 @@ GLuint   ShaderSetups() {
         glGetShaderInfoLog(vertexShader, logLength, NULL, errorLog.data());
 
         // Print error log
-        std::cerr << "Vertex Shader compilation failed:\n" << errorLog.data() << std::endl;
-        // Additional error handling or cleanup if needed
+//        std::cerr << "Vertex Shader compilation failed:\n" << errorLog.data() << std::endl;
+		printColoredText("Vertex Shader compilation failed\n", 255, 30, 30);
+		printColoredText(errorLog.data(), 255, 30, 30);
+
+		// Clean up and return
+		glDeleteShader(vertexShader);
+		return 0;
     }
     else
     {
-        std::cout << "Vertex Shader compiled successfully" << std::endl;
+		printColoredText(" -Vertex Shader compiled successfully\n", 0, 255, 255);
     }
 
 
     // Compile Fragment Shader
+	printColoredText("Compiling Fragment Shader\n", 0, 140, 255);
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     const char * fragmentShaderSource = loadShaderFromFile("./srcs/fragmentShader.glsl");
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
@@ -62,12 +73,18 @@ GLuint   ShaderSetups() {
         glGetShaderInfoLog(fragmentShader, logLength, NULL, errorLog.data());
 
         // Print error log
-        std::cerr << "Fragment Shader compilation failed:\n" << errorLog.data() << std::endl;
-        // Additional error handling or cleanup if needed
+//        std::cerr << "Fragment Shader compilation failed:\n" << errorLog.data() << std::endl;
+		printColoredText("Fragment Shader compilation failed\n", 255, 30, 30);
+		printColoredText(errorLog.data(), 255, 30, 30);\
+
+		// Clean up and return
+		glDeleteShader(vertexShader);
+		glDeleteShader(fragmentShader);
+		return 0;
     }
     else
     {
-        std::cout << "Fragment Shader compiled successfully" << std::endl;
+		printColoredText(" -Fragment Shader compiled successfully\n", 0, 255, 255);
     }
 
 
@@ -86,6 +103,7 @@ GLuint   ShaderSetups() {
 }
 
 GLFWwindow *InitalSetup() {
+	printColoredText("Initializing GLFW\n", 0, 140, 255);
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -94,13 +112,14 @@ GLFWwindow *InitalSetup() {
     GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", nullptr, nullptr);
 //    GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", glfwGetPrimaryMonitor(), nullptr);
 	if (window == nullptr) {
-		std::cout << "Failed to create GLFW window" << std::endl;
+		printColoredText("Failed to create GLFW window\n", 255, 30, 30);
 		glfwTerminate();
 		return nullptr;
 	}
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW" << std::endl;
+		printColoredText("Failed to initialize GLEW\n", 255, 30, 30);
+		glfwTerminate();
 		return nullptr;
 	}
 
@@ -121,6 +140,9 @@ GLFWwindow *InitalSetup() {
     // Hide the cursor and lock it to the window
 //	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
+	printColoredText(" -GLFW initialized successfully\n", 0, 255, 255);
+	printColoredText(" -GLEW initialized successfully\n", 0, 255, 255);
 	return window;
 }
 
@@ -130,6 +152,14 @@ int main(int argc, char** argv) {
 		return -1;
 
 	GLuint shaderProgram = ShaderSetups();
+	if (shaderProgram == 0) {
+		glfwTerminate();
+		return -1;
+	}
+
+	printColoredText("Monitor refresh rate: ", 155, 80, 255);
+	printColoredText(std::to_string(glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate).c_str(), 0, 185, 185);
+	printColoredText(" Hz\n", 0, 185, 185);
 
 	Camera camera;
 
@@ -143,7 +173,7 @@ int main(int argc, char** argv) {
     Model model("./Resources/Textures/zebra.bmp", debian_filename, 0.3f);
     model.vertexBufferSetup();
 
-	DefaultPlane defaultPlane("./Resources/Textures/centipede-grass.bmp");
+	DefaultPlane defaultPlane("./Resources/Textures/vaporwavegrid.bmp");
 
 	// Set up the projection matrix
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
@@ -161,7 +191,7 @@ int main(int argc, char** argv) {
     RenderBatch modelBatch(model.getObj().getVerticesArray(), model.getObj().getVertexCount(), *model.getTexture().getTextureID());
 
     bool animation_end;
-    std::cout << "Monitor refresh rate: " << glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate << " Hz" << std::endl;
+	printColoredText("Starting BIM...\n", 0, 140, 255);
 	while (!glfwWindowShouldClose(window)) {
 
         animation_end = Animation::InitialAnimation(&camera, model.getCenter(), model.getScale(), &model);
@@ -257,6 +287,8 @@ int main(int argc, char** argv) {
             updateStates(window, camera, model, gui);
             if (mouseIntersectModel(window, model, mvpMatrix))
                 updateModel(window, model, modelBatch);
+            else if (mouseIntersectPlane(window, defaultPlane, mvpMatrix))
+				updateDefaultPlane(window, defaultPlane);
             else
                 Input::dropPosition = glm::vec2(-500.0f, -500.0f);
         }

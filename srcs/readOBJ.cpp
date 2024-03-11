@@ -90,10 +90,10 @@ long long int getNumberOfVertices(const std::string &line)
 
 void    readOBJ::readVertices()
 {
-	std::ifstream file(this->filename);
+	std::ifstream file(this->filePath);
     if (!file.is_open())
     {
-        std::cout << "Error: Could not open file: " << this->filename << std::endl;
+        std::cout << "Error: Could not open file: " << this->filePath << std::endl;
         return;
     }
 	std::string line;
@@ -132,7 +132,7 @@ void    readOBJ::readVertices()
 
 void    readOBJ::readFaces()
 {
-	std::ifstream file(this->filename);
+	std::ifstream file(this->filePath);
 	std::string line;
 //	this->verticesArray = new float[this->faceCount * 18];
     this->verticesArray = new float[this->faceCount * 27];
