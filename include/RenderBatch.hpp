@@ -52,6 +52,12 @@ class RenderBatch {
             this->textureID = textureID;
         }
 
+        void    setVerticeArrayObject() {
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9 * this->vertexCount, this->vertices, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
         void draw() {
             glBindTexture(GL_TEXTURE_2D, textureID);
             glBindVertexArray(VAO);

@@ -16,6 +16,7 @@ class Animation {
         static std::chrono::time_point<std::chrono::high_resolution_clock> end;
     public:
         static bool InitialAnimation(Camera *camera, glm::vec3 modelCenter, float Scale, Model *model);
+        static bool TransitionAnimation(float &blendFactor);
 };
 
 #endif //BIM_ANIMATION_HPP

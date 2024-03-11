@@ -35,6 +35,7 @@
 #include "GUI.hpp"
 #include "Button.hpp"
 #include "RenderBatch.hpp"
+#include "ProgressBar.hpp"
 
 void    fpsCounter(std::chrono::time_point<std::chrono::high_resolution_clock> &lastFPSTime, int &frameCount, double &fps);
 void    updateStates(GLFWwindow *window, Camera &camera, Model &model, GUI &gui);
