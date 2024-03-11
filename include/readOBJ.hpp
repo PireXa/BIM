@@ -30,8 +30,9 @@ class readOBJ {
         glm::vec3 center;
         BoundingBox boundingBox;
 		std::string fileName;
+		float textureScale;
 	public:
-		readOBJ(const char *filename, float resolution) : filePath(filename) {
+		readOBJ(const char *filename, float resolution) : filePath(filename), textureScale(resolution) {
 			printConstructorMessage();
 			readVertices();
 			readFaces();
@@ -39,7 +40,7 @@ class readOBJ {
             CalculateBoundingBox();
             if (uvs.size() == 0) {
 				printColoredText(" -No UVs found, generating UVs\n", 255, 30, 155);
-                PlanarMapping(resolution);
+                PlanarMapping();
             }
             if (normals.size() == 0) {
                 printColoredText(" -No normals found, generating normals\n", 255, 30, 155);
@@ -63,10 +64,11 @@ class readOBJ {
         BoundingBox getBoundingBox();
 		void    readVertices();
 		void    readFaces();
-        void    PlanarMapping(float resolution);
+        void    PlanarMapping();
         void    CalculateCenter();
         void    CalculateBoundingBox();
         void    CalculateNormals();
+		void	changeTextureScale(float scale);
 		void	printConstructorMessage()
 		{
 			std::string str(filePath);

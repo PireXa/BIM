@@ -8,6 +8,7 @@
 #include "glMath.hpp"
 #include "readOBJ.hpp"
 #include "Texture.hpp"
+#include "RenderBatch.hpp"
 
 class Model {
     private:
@@ -20,9 +21,12 @@ class Model {
         readOBJ     obj;
         GLuint     VAO;
         GLuint     VBO;
+		RenderBatch renderBatch;
 
     public:
-        Model(const char *texturePath, const char *objPath, float textureScale) : orientation(), position(), texture(texturePath), obj(objPath, textureScale) {
+        Model(const char *texturePath, const char *objPath, float textureScale) : orientation(), position(), texture(texturePath), obj(objPath, textureScale),
+		renderBatch(obj.getVerticesArray(), obj.getVertexCount(), *texture.getTextureID())
+		{
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
             position = glm::vec3(0.0f, 0.0f, 0.0f);
             center = obj.getCenter();
@@ -69,6 +73,10 @@ class Model {
 			return position;
 		}
 
+		RenderBatch *getRenderBatch() {
+			return &renderBatch;
+		}
+
         void    setCenter(glm::vec3 center) {
             this->center = center;
         }
@@ -89,6 +97,10 @@ class Model {
         void    setTexture(const char *path) {
             this->texture = Texture(path);
         }
+
+		void	changeTextureScale(float scale) {
+			this->obj.changeTextureScale(scale);
+		}
 
         void    rotate(float angle, float x, float y, float z) {
             glm::quat rotation = glm::angleAxis(angle, glm::vec3(x, y, z));
@@ -140,11 +152,7 @@ class Model {
         }
 
         void    draw() {
-            glBindVertexArray(VAO);
-            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
-            glDrawArrays(GL_TRIANGLES, 0, obj.getVertexCount());
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glBindVertexArray(0);
+			renderBatch.draw();
         }
 
         //check if ray intersects with model using Moeller-Trumbore algorithm

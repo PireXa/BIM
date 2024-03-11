@@ -39,7 +39,7 @@
 
 void    fpsCounter(std::chrono::time_point<std::chrono::high_resolution_clock> &lastFPSTime, int &frameCount, double &fps);
 void    updateStates(GLFWwindow *window, Camera &camera, Model &model, GUI &gui);
-void    updateModel(GLFWwindow *window, Model &model, RenderBatch &modelBatch);
+void    updateModel(GLFWwindow *window, Model &model);
 void    updateDefaultPlane(GLFWwindow *window, DefaultPlane &defaultPlane);
 bool mouseIntersectModel(GLFWwindow *window, Model &model, glm::mat4 &mvpMatrix);
 bool mouseIntersectPlane(GLFWwindow *window, DefaultPlane &defaultPlane, glm::mat4 &mvpMatrix);
