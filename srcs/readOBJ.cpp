@@ -154,13 +154,17 @@ void    readOBJ::readFaces()
 				} else {
 					// Check the number of '/' occurrences to determine the format
 					long long int slashCount = std::count(line.begin(), line.end(), '/');
-					if (slashCount / 3 == 2) {
+					int noTexture = line.find("//");
+					if (slashCount / 3 == 2 && noTexture == std::string::npos ) {
 						// Format 3: f x/1/2 x/3/4 x/5/6
 						iss >> type >> f1 >> type >> t1 >> type >> n1 >> f2 >> type >> t2 >> type >> n2 >> f3 >> type
 						    >> t3 >> type >> n3;
-					} else {
+					} else if (slashCount / 3 == 1) {
 						// Format 2: f x/1 x/2 x/3
 						iss >> type >> f1 >> type >> t1 >> f2 >> type >> t2 >> f3 >> type >> t3;
+					} else {
+						// Format 2: f x//1 x//2 x//3
+						iss >> type >> f1 >> type >> type >> n1 >> f2 >> type >> type >> n2 >> f3 >> type >> type >> n3;
 					}
 				}
 //				std::cout << f1 << " " << f2 << " " << f3 << std::endl;
