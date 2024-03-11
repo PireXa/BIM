@@ -100,6 +100,18 @@ class DefaultPlane {
             return vertices;
         }
 
+        void    setTexture(const char *texturePath) {
+            texture = Texture(texturePath);
+            glGenTextures(1, texture.getTextureID());
+            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
         void    draw() {
             // Bind the texture for the XZ plane
             glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
@@ -115,6 +127,16 @@ class DefaultPlane {
 
             // Unbind the texture for the XZ plane
             glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        bool intersectRay(glm::vec3 rayOrigin, glm::vec3 rayDirection) {
+            glm::vec3 planeNormal = glm::vec3(0.0f, 1.0f, 0.0f);
+            float d = 0.0f;
+            float t = (d - glm::dot(rayOrigin, planeNormal)) / glm::dot(rayDirection, planeNormal);
+            if (t < 0.0f && t < MAX_PLANE_DISTANCE)
+                return false;
+//            std::cout << "Distance to plane: " << t << std::endl;
+            return true;
         }
 };
 

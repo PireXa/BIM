@@ -19,7 +19,7 @@ struct  BoundingBox {
 
 class readOBJ {
 	private:
-		const char *filename;
+		const char *filePath;
 		std::vector<Vertex> vertices;
 		std::vector<UV> uvs;
         std::vector<Normal> normals;
@@ -29,21 +29,30 @@ class readOBJ {
 		int vertexCount = 0;
         glm::vec3 center;
         BoundingBox boundingBox;
+		std::string fileName;
 	public:
-		readOBJ(const char *filename, float resolution) : filename(filename) {
+		readOBJ(const char *filename, float resolution) : filePath(filename) {
+			printConstructorMessage();
 			readVertices();
 			readFaces();
             CalculateCenter();
             CalculateBoundingBox();
             if (uvs.size() == 0) {
-                std::cout << "No UVs found, generating planar mapping" << std::endl;
+				printColoredText(" -No UVs found, generating UVs\n", 255, 30, 155);
                 PlanarMapping(resolution);
             }
             if (normals.size() == 0) {
-                std::cout << "No normals found, generating normals" << std::endl;
+                printColoredText(" -No normals found, generating normals\n", 255, 30, 155);
                 CalculateNormals();
             }
-			std::cout << "Face count: " << faceCount << std::endl;
+			printColoredText("Loaded ", 255, 255, 0);
+			printColoredText(this->fileName.c_str(), 255, 255, 0);
+			printColoredText(":\n", 255, 255, 0);
+			printColoredText(" -Vertices: ", 155, 255, 70);
+			printColoredText(std::to_string(vertexCount).c_str(), 155, 255, 70);
+			printColoredText("\n -Faces: ", 155, 255, 70);
+			printColoredText(std::to_string(faceCount).c_str(), 155, 255, 70);
+			std::cout << std::endl;
 		}
 		float *getVerticesArray();
 		int getVerticesArraySize();
@@ -58,6 +67,17 @@ class readOBJ {
         void    CalculateCenter();
         void    CalculateBoundingBox();
         void    CalculateNormals();
+		void	printConstructorMessage()
+		{
+			std::string str(filePath);
+			size_t pos = 0;
+			while ((pos = str.find("/")) != std::string::npos)
+				str.erase(0, pos + 1);
+			this->fileName = str;
+			printColoredText("Reading OBJ file: ", 0, 140, 255);
+			printColoredText(str.c_str(), 255, 255, 0);
+			std::cout << std::endl;
+		}
 };
 
 #endif //BIM_READOBJ_HPP

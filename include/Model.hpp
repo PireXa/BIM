@@ -87,7 +87,7 @@ class Model {
         }
 
         void    setTexture(const char *path) {
-            texture = Texture(path);
+            this->texture = Texture(path);
         }
 
         void    rotate(float angle, float x, float y, float z) {

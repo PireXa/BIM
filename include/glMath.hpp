@@ -30,4 +30,6 @@ struct Normal {
     float x, y, z;
 };
 
+void	printColoredText(const char *text, int r, int g, int b);
+
 #endif //BIM_GLMATH_HPP
