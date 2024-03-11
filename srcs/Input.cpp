@@ -26,6 +26,7 @@ float Input::xoffset = 0.0f;
 float Input::yoffset = 0.0f;
 std::vector<std::string> Input::filePaths;
 glm::vec2 Input::dropPosition = glm::vec2(0.0f, 0.0f);
+bool Input::beginTransition = false;
 
 void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key >= 0 && key < 1024) {
@@ -40,6 +41,7 @@ void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action
         }
         if (key == GLFW_KEY_N && action == GLFW_PRESS)
         {
+            Input::beginTransition = true;
             if (Input::TextureMode == 1)
                 Input::TextureMode = 0;
             else

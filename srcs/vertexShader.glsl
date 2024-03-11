@@ -6,6 +6,7 @@
     uniform mat4 vp;  // Uniform view-projection matrix
     uniform int renderTexture;
 	uniform int GUITransparent;
+	uniform	float transitionBlendFactor;
 
 	layout (location = 0) in vec3 position;  // Input: Vertex position
 	layout (location = 1) in vec3 uv;     // Input: Vertex color
@@ -15,6 +16,7 @@
     out vec3 NormalFragColor;  // Output: Normal for fragment shader
     flat out int RenderTexture; // Output: Which render mode to use
 	flat out int GUITransparency; // Output: Is the GUI transparent
+	flat out float TransitionBlendFactor; // Output: Transition blend factor
 
 	void main() {
 	    // Transform vertex position to camera space
@@ -26,4 +28,5 @@
 	    TextureFragColor = texCoord; // for texture
 		NormalFragColor = normal; // Pass rgb color to the fragment shader (for no texture)
 		RenderTexture = renderTexture;
+		TransitionBlendFactor = transitionBlendFactor;
 	}

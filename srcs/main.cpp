@@ -184,6 +184,8 @@ int main(int argc, char** argv) {
 
     GUI gui("./Resources/Textures/Backwall.bmp");
 
+    ProgressBar progressBar(glm::vec2(WIN_WIDTH / 2 - 100, 60.0f), glm::vec2(200.0f, 20.0f), 100.0f, 100.0f, "./Resources/Textures/white.bmp");
+
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
 	double fps = 0;
@@ -191,10 +193,12 @@ int main(int argc, char** argv) {
     RenderBatch modelBatch(model.getObj().getVerticesArray(), model.getObj().getVertexCount(), *model.getTexture().getTextureID());
 
     bool animation_end;
+    float blendFactor = 1.0f;
 	printColoredText("Starting BIM...\n", 0, 140, 255);
 	while (!glfwWindowShouldClose(window)) {
 
         animation_end = Animation::InitialAnimation(&camera, model.getCenter(), model.getScale(), &model);
+        Animation::TransitionAnimation(blendFactor);
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -207,6 +211,12 @@ int main(int argc, char** argv) {
 
         //Set the uniform in the shader to the render mode
         glUniform1i(renderTextureLoc, renderTexture);
+
+        // Pass the blend factor to the shader
+        GLint blendFactorLoc = glGetUniformLocation(shaderProgram, "transitionBlendFactor");
+
+        //Set the uniform in the shader to the blend factor
+        glUniform1f(blendFactorLoc, blendFactor);
 
 		// Update Camera View Matrix
         glm::mat4 viewMatrix;
@@ -233,7 +243,14 @@ int main(int argc, char** argv) {
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+        if (Input::TextureMode)
+            glUniform1f(blendFactorLoc, blendFactor);
+        else
+            glUniform1f(blendFactorLoc, 1.0f - blendFactor);
+
         modelBatch.draw();
+
+        glUniform1f(blendFactorLoc, 1.0f);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -270,14 +287,21 @@ int main(int argc, char** argv) {
         // Draw GUI
         gui.draw();
 
+        // Draw Progress Bar
+        if (blendFactor == 1.0f)
+            progressBar.setProgress(0.0f);
+        else
+            progressBar.setProgress(blendFactor * 100.0f);
+        progressBar.draw();
+
         glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0);
 
         glEnable(GL_DEPTH_TEST);
 
+        // Poll events
+        glfwPollEvents();
         if (!animation_end)
         {
-            // Poll events
-            glfwPollEvents();
             glfwSetKeyCallback(window, Input::keyCallback);
 			glfwSetMouseButtonCallback(window, Input::Input::mouseButtonCallback);
             glfwSetCursorPosCallback(window, Input::mouseCallback);
@@ -293,7 +317,7 @@ int main(int argc, char** argv) {
                 Input::dropPosition = glm::vec2(-500.0f, -500.0f);
         }
 
-        // Swap buffers and poll events
+        // Swap buffers
         glfwSwapBuffers(window);
 
 	}

@@ -12,6 +12,8 @@ int Animation::animationState = 0;
 
 bool    Animation::InitialAnimation(Camera *camera, glm::vec3 modelCenter, float Scale, Model *model)
 {
+    if (animationState == 2)
+        return false;
     glm::vec3 cameraPosition = modelCenter + glm::vec3(0.5f * Scale, 0.5f * Scale, 0.5f * Scale);
     float distance = glm::length(cameraPosition - modelCenter);
     float distance2 = glm::length(camera->getPosition() - modelCenter);
@@ -32,5 +34,36 @@ bool    Animation::InitialAnimation(Camera *camera, glm::vec3 modelCenter, float
         animationState = 1;
     else if (animationState == 1)
         animationState = 2;
+    return false;
+}
+
+bool   Animation::TransitionAnimation(float &blendFactor)
+{
+    if (animationState != 2 && !Input::beginTransition)
+        return false;
+    else if (animationState == 2 && Input::beginTransition)
+    {
+        animationState = 3;
+        start = std::chrono::high_resolution_clock::now();
+    }
+    else if (animationState == 3 && !Input::beginTransition)
+    {
+        animationState = 2;
+        return false;
+    }
+//    else if (animationState == 3 && Input::beginTransition)
+//        auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::high_resolution_clock::now();
+    float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - start).count();
+    if (deltaTime < 2.0f)
+    {
+        blendFactor = deltaTime / 2.0f;
+        if (blendFactor > 1.0f)
+            blendFactor = 1.0f;
+        return true;
+    }
+    animationState = 2;
+    Input::beginTransition = false;
+    blendFactor = 1.0f;
     return false;
 }

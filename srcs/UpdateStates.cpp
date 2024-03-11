@@ -23,6 +23,7 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
             if (buttonPressed == 0 && !Input::firstMouse[0])
             {
                 Input::firstMouse[0] = true;
+                Input::beginTransition = true;
                 if (Input::TextureMode == 1)
                     Input::TextureMode = 0;
                 else
@@ -31,6 +32,7 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
             else if (buttonPressed == 1 && !Input::firstMouse[1])
             {
                 Input::firstMouse[1] = true;
+                Input::beginTransition = true;
                 if (Input::WireframeMode == 1)
                     Input::WireframeMode = 0;
                 else
