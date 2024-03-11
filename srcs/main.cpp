@@ -190,7 +190,7 @@ int main(int argc, char** argv) {
     int frameCount = 0;
 	double fps = 0;
 
-    RenderBatch modelBatch(model.getObj().getVerticesArray(), model.getObj().getVertexCount(), *model.getTexture().getTextureID());
+//    RenderBatch modelBatch(model.getObj().getVerticesArray(), model.getObj().getVertexCount(), *model.getTexture().getTextureID());
 
     bool animation_end;
     float blendFactor = 1.0f;
@@ -248,7 +248,7 @@ int main(int argc, char** argv) {
         else
             glUniform1f(blendFactorLoc, 1.0f - blendFactor);
 
-        modelBatch.draw();
+		model.draw();
 
         glUniform1f(blendFactorLoc, 1.0f);
 
@@ -310,7 +310,7 @@ int main(int argc, char** argv) {
             camera.setMoveSpeed(Input::moveSpeed);
             updateStates(window, camera, model, gui);
             if (mouseIntersectModel(window, model, mvpMatrix))
-                updateModel(window, model, modelBatch);
+                updateModel(window, model);
             else if (mouseIntersectPlane(window, defaultPlane, mvpMatrix))
 				updateDefaultPlane(window, defaultPlane);
             else

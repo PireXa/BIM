@@ -86,10 +86,12 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
         model.reset();
     }
     if (Input::keys[GLFW_KEY_I]) {
-        model.translate(0.0f, 0.0f, 0.2f);
+        model.changeTextureScale(0.001f);
+		model.getRenderBatch()->setVertices(model.getObj().getVerticesArray(), model.getObj().getVertexCount());
     }
     if (Input::keys[GLFW_KEY_K]) {
-        model.translate(0.0f, 0.0f, -0.2f);
+        model.changeTextureScale(-0.001f);
+		model.getRenderBatch()->setVertices(model.getObj().getVerticesArray(), model.getObj().getVertexCount());
     }
     if (Input::camera_pitch != 0.0f)
     {
@@ -113,7 +115,7 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
     }
 }
 
-void    updateModel(GLFWwindow *window, Model &model, RenderBatch &modelBatch)
+void    updateModel(GLFWwindow *window, Model &model)
 {
     if (Input::filePaths.size() > 0)
     {
@@ -125,12 +127,12 @@ void    updateModel(GLFWwindow *window, Model &model, RenderBatch &modelBatch)
                 model.setCenter(model.getObj().getCenter());
                 model.setBoundingBox(model.getObj().getBoundingBox());
                 model.setScale(model.getObj().getBoundingBox().max.x - model.getObj().getBoundingBox().min.x);
-                modelBatch.setVertices(model.getObj().getVerticesArray(), model.getObj().getVertexCount());
+				model.getRenderBatch()->setVertices(model.getObj().getVerticesArray(), model.getObj().getVertexCount());
             }
             else if (Input::filePaths[i].find(".bmp") != std::string::npos) {
 
                 model.setTexture(Input::filePaths[i].c_str());
-                modelBatch.setTexture(*model.getTexture().getTextureID());
+				model.getRenderBatch()->setTexture(*model.getTexture().getTextureID());
                 glGenTextures(1, model.getTexture().getTextureID());
                 glBindTexture(GL_TEXTURE_2D, *model.getTexture().getTextureID());
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, model.getTexture().getWidth(), model.getTexture().getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, model.getTexture().getPixels().data());

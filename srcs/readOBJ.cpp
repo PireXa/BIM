@@ -503,9 +503,8 @@ void    readOBJ::readFaces()
 	}
 }
 
-void    readOBJ::PlanarMapping(float resolution)
+void    readOBJ::PlanarMapping()
 {
-//    float resolution = 0.3;
     for (int i = 0; i < this->verticesArraySize; i += 27)
     {
         Vertex v1 = {verticesArray[i], verticesArray[i + 1], verticesArray[i + 2]};
@@ -521,37 +520,37 @@ void    readOBJ::PlanarMapping(float resolution)
         normal.z = fabs(normal.z);
         if (normal.x > normal.y && normal.x > normal.z)
         {
-            verticesArray[i + 3] = v1.y * resolution;
-            verticesArray[i + 4] = v1.z * resolution;
+            verticesArray[i + 3] = v1.y * this->textureScale;
+            verticesArray[i + 4] = v1.z * this->textureScale;
             verticesArray[i + 5] = 0;
-            verticesArray[i + 12] = v2.y * resolution;
-            verticesArray[i + 13] = v2.z * resolution;
+            verticesArray[i + 12] = v2.y * this->textureScale;
+            verticesArray[i + 13] = v2.z * this->textureScale;
             verticesArray[i + 14] = 0;
-            verticesArray[i + 21] = v3.y * resolution;
-            verticesArray[i + 22] = v3.z * resolution;
+            verticesArray[i + 21] = v3.y * this->textureScale;
+            verticesArray[i + 22] = v3.z * this->textureScale;
             verticesArray[i + 23] = 0;
         }
         else if (normal.y > normal.x && normal.y > normal.z)
         {
-            verticesArray[i + 3] = v1.x * resolution;
-            verticesArray[i + 4] = v1.z * resolution;
+            verticesArray[i + 3] = v1.x * this->textureScale;
+            verticesArray[i + 4] = v1.z * this->textureScale;
             verticesArray[i + 5] = 0;
-            verticesArray[i + 12] = v2.x * resolution;
-            verticesArray[i + 13] = v2.z * resolution;
+            verticesArray[i + 12] = v2.x * this->textureScale;
+            verticesArray[i + 13] = v2.z * this->textureScale;
             verticesArray[i + 14] = 0;
-            verticesArray[i + 21] = v3.x * resolution;
-            verticesArray[i + 22] = v3.z * resolution;
+            verticesArray[i + 21] = v3.x * this->textureScale;
+            verticesArray[i + 22] = v3.z * this->textureScale;
             verticesArray[i + 23] = 0;
         }
         else {
-            verticesArray[i + 3] = v1.x * resolution;
-            verticesArray[i + 4] = v1.y * resolution;
+            verticesArray[i + 3] = v1.x * this->textureScale;
+            verticesArray[i + 4] = v1.y * this->textureScale;
             verticesArray[i + 5] = 0;
-            verticesArray[i + 12] = v2.x * resolution;
-            verticesArray[i + 13] = v2.y * resolution;
+            verticesArray[i + 12] = v2.x * this->textureScale;
+            verticesArray[i + 13] = v2.y * this->textureScale;
             verticesArray[i + 14] = 0;
-            verticesArray[i + 21] = v3.x * resolution;
-            verticesArray[i + 22] = v3.y * resolution;
+            verticesArray[i + 21] = v3.x * this->textureScale;
+            verticesArray[i + 22] = v3.y * this->textureScale;
             verticesArray[i + 23] = 0;
         }
     }
@@ -582,4 +581,11 @@ void    readOBJ::CalculateNormals()
         verticesArray[i + 25] = normal.y;
         verticesArray[i + 26] = normal.z;
     }
+}
+
+void	readOBJ::changeTextureScale(float scale)
+{
+	this->textureScale += scale;
+	if (this->uvs.size() == 0)
+		PlanarMapping();
 }
