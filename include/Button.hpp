@@ -19,7 +19,7 @@ class Button {
         TextFont font;
         const char *label;
     public:
-        Button(int width, int height, glm::vec2 position, const char *Label) : width(width), height(height), position(position), texture("./Resources/Textures/Button.bmp"), font("./Fonts/Font3.png"), label(Label) {
+        Button(int width, int height, glm::vec2 position, const char *Label) : width(width), height(height), position(position), texture("./Resources/Textures/Button.bmp"), font("./Fonts/Font3White.png"), label(Label) {
             vertices[0] = position.x;
             vertices[1] = position.y;
             vertices[2] = 0.0f;
@@ -67,19 +67,6 @@ class Button {
             glEnableVertexAttribArray(1);
             glBindVertexArray(0);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            // Generate texture ID for the button
-            glGenTextures(1, texture.getTextureID());
-            // Bind the texture and set its parameters
-            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            // Load texture data into the texture object
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
-            // Unbind the texture
-            glBindTexture(GL_TEXTURE_2D, 0);
         }
 
         ~Button() {

@@ -68,15 +68,6 @@ class GUI {
             glBindVertexArray(0);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-            glGenTextures(1, texture.getTextureID());
-            glBindTexture(GL_TEXTURE_2D, *texture.getTextureID());
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.getWidth(), texture.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, texture.getPixels().data());
-            glBindTexture(GL_TEXTURE_2D, 0);
-
             buttons.reserve(3); // Reserve memory for 3 Button objects
 
             buttons.emplace_back(100, 50, glm::vec2(position.x - 50 + width / 2, position.y + height * 3 / 4 - 25), "NORMAL");

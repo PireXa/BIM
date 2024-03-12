@@ -57,9 +57,9 @@ class RenderBatch {
         }
 
         void draw() {
-            glBindTexture(GL_TEXTURE_2D, textureID);
+            glBindTexture(GL_TEXTURE_2D, this->textureID);
             glBindVertexArray(VAO);
-            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+            glDrawArrays(GL_TRIANGLES, 0, this->vertexCount);
             glBindVertexArray(0);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
