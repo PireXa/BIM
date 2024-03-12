@@ -1,8 +1,5 @@
 	#version 330 core
 
-//	uniform mat4 view;  // Uniform view matrix
-//	uniform mat4 model;  // Uniform model matrix
-//	uniform mat4 projection;  // Uniform projection matrix
     uniform mat4 vp;  // Uniform view-projection matrix
     uniform int renderTexture;
 	uniform int GUITransparent;

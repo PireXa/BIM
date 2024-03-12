@@ -39,20 +39,13 @@ bool    Animation::InitialAnimation(Camera *camera, glm::vec3 modelCenter, float
 
 bool   Animation::TransitionAnimation(float &blendFactor)
 {
-    if (animationState != 2 && !Input::beginTransition)
+    if (!Input::beginTransition || animationState == 4 || Input::animationState == 2)
         return false;
-    else if (animationState == 2 && Input::beginTransition)
+    else if (animationState == 2 || animationState == 1)
     {
         animationState = 3;
         start = std::chrono::high_resolution_clock::now();
     }
-    else if (animationState == 3 && !Input::beginTransition)
-    {
-        animationState = 2;
-        return false;
-    }
-//    else if (animationState == 3 && Input::beginTransition)
-//        auto now = std::chrono::high_resolution_clock::now();
     auto now = std::chrono::high_resolution_clock::now();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - start).count();
     if (deltaTime < 2.0f)
@@ -66,4 +59,27 @@ bool   Animation::TransitionAnimation(float &blendFactor)
     Input::beginTransition = false;
     blendFactor = 1.0f;
     return false;
+}
+
+bool Animation::buildAnimation(Model *model)
+{
+    if (!Input::beginTransition || animationState == 3 || Input::animationState == 1)
+        return false;
+    else if (animationState == 2 || animationState == 1)
+    {
+        animationState = 4;
+        start = std::chrono::high_resolution_clock::now();
+    }
+    auto now = std::chrono::high_resolution_clock::now();
+    float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - start).count();
+    if (deltaTime < 3.0f)
+    {
+        float buildVertexCount = deltaTime * (model->getObj().getVertexCount() + 1) / 3.0f;
+        model->setBuildAnimationVertexCount(buildVertexCount);
+        return true;
+    }
+    animationState = 2;
+    Input::beginTransition = false;
+    model->changeTextureScale(0.0f);
+    return true;
 }

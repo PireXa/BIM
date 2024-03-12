@@ -39,7 +39,7 @@ void    Input::keyCallback(GLFWwindow* window, int key, int scancode, int action
             else
                 Input::WireframeMode = 0;
         }
-        if (key == GLFW_KEY_N && action == GLFW_PRESS)
+        if (key == GLFW_KEY_N && action == GLFW_PRESS && !Input::beginTransition)
         {
             Input::beginTransition = true;
             if (Input::TextureMode == 1)
@@ -140,8 +140,6 @@ void    Input::scrollCallback(GLFWwindow* window, double xoffset, double yoffset
 }
 
 void    Input::dropCallback(GLFWwindow* window, int count, const char** paths) {
-//    for (int i = 0; i < count; i++)
-//        std::cout << paths[i] << std::endl;
     Input::filePaths = std::vector<std::string>(paths, paths + count);
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);

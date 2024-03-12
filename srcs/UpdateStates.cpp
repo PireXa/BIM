@@ -20,10 +20,11 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
         int buttonPressed = corner - 6;
         if (Input::dragType == 0)
         {
-            if (buttonPressed == 0 && !Input::firstMouse[0])
+            if (buttonPressed == 0 && !Input::firstMouse[0] && !Input::beginTransition)
             {
                 Input::firstMouse[0] = true;
                 Input::beginTransition = true;
+                Input::animationState = 1;
                 if (Input::TextureMode == 1)
                     Input::TextureMode = 0;
                 else
@@ -32,11 +33,16 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
             else if (buttonPressed == 1 && !Input::firstMouse[1])
             {
                 Input::firstMouse[1] = true;
-                Input::beginTransition = true;
                 if (Input::WireframeMode == 1)
                     Input::WireframeMode = 0;
                 else
                     Input::WireframeMode = 1;
+            }
+            else if (buttonPressed == 2 && !Input::firstMouse[2] && !Input::beginTransition)
+            {
+                Input::firstMouse[2] = true;
+                Input::beginTransition = true;
+                Input::animationState = 2;
             }
         }
     }

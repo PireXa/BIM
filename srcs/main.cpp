@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 	DefaultPlane defaultPlane("./Resources/Textures/vaporwavegrid.bmp");
 
 	// Set up the projection matrix
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(80.0f), // FOV
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(75.0f), // FOV
 												  WIN_WIDTH / WIN_HEIGHT,          // Aspect ratio
 												  0.1f, 1000.0f);        // Near and far planes
 
@@ -190,8 +190,6 @@ int main(int argc, char** argv) {
     int frameCount = 0;
 	double fps = 0;
 
-//    RenderBatch modelBatch(model.getObj().getVerticesArray(), model.getObj().getVertexCount(), *model.getTexture().getTextureID());
-
     bool animation_end;
     float blendFactor = 1.0f;
 	printColoredText("Starting BIM...\n", 0, 140, 255);
@@ -199,6 +197,7 @@ int main(int argc, char** argv) {
 
         animation_end = Animation::InitialAnimation(&camera, model.getCenter(), model.getScale(), &model);
         Animation::TransitionAnimation(blendFactor);
+        Animation::buildAnimation(&model);
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -287,14 +286,14 @@ int main(int argc, char** argv) {
         // Draw GUI
         gui.draw();
 
+        glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0);
+
         // Draw Progress Bar
         if (blendFactor == 1.0f)
             progressBar.setProgress(0.0f);
         else
             progressBar.setProgress(blendFactor * 100.0f);
         progressBar.draw();
-
-        glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0);
 
         glEnable(GL_DEPTH_TEST);
 
