@@ -8,6 +8,14 @@
 
 Texture::Texture(const char *path) : path(path) {
 	loadBMP();
+	glGenTextures(1, this->getTextureID());
+	glBindTexture(GL_TEXTURE_2D, *this->getTextureID());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->getWidth(), this->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, this->getPixels().data());
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::~Texture() = default;

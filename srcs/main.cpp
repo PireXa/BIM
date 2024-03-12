@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
         debian_filename = argv[1];
     }
     Model model("./Resources/Textures/zebra.bmp", debian_filename, 0.3f);
-    model.vertexBufferSetup();
+//    model.vertexBufferSetup();
 
 	DefaultPlane defaultPlane("./Resources/Textures/vaporwavegrid.bmp");
 
@@ -180,11 +180,24 @@ int main(int argc, char** argv) {
 												  WIN_WIDTH / WIN_HEIGHT,          // Aspect ratio
 												  0.1f, 1000.0f);        // Near and far planes
 
-	TextFont font("./Fonts/Font3.png");
+	TextFont font("./Fonts/Font3White.png");
 
     GUI gui("./Resources/Textures/Backwall.bmp");
 
     ProgressBar progressBar(glm::vec2(WIN_WIDTH / 2 - 100, 60.0f), glm::vec2(200.0f, 20.0f), 100.0f, 100.0f, "./Resources/Textures/white.bmp");
+
+    float   skybox[54] = {
+            // positions xyz // texture coords uvw // normals xyz
+        -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+        0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
+        -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+    0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0
+    };
+
+	Texture skyboxTexture("./Resources/Textures/pattern5.bmp");
+	RenderBatch skyboxBatch(skybox, 6, *skyboxTexture.getTextureID());
 
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -252,6 +265,8 @@ int main(int argc, char** argv) {
         glUniform1f(blendFactorLoc, 1.0f);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		skyboxBatch.draw();
 
         renderTexture = 1;
 
