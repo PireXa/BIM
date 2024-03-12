@@ -19,8 +19,7 @@ class Model {
         float       scale;
         Texture     texture;
         readOBJ     obj;
-        GLuint     VAO;
-        GLuint     VBO;
+        int         buildAnimationVertexCount;
 		RenderBatch renderBatch;
 
     public:
@@ -33,11 +32,6 @@ class Model {
             boundingBox = obj.getBoundingBox();
             scale = glm::length(boundingBox.max - boundingBox.min);
         }
-
-		~Model() {
-			glDeleteVertexArrays(1, &VAO);
-			glDeleteBuffers(1, &VBO);
-		}
 
         void    vertexBufferSetup();
 
@@ -61,12 +55,12 @@ class Model {
             return obj;
         }
 
-        GLuint getVAO() {
-            return VAO;
+        int getVertexCount() {
+            return obj.getVertexCount();
         }
 
-        GLuint getVBO() {
-            return VBO;
+        int getBuildAnimationVertexCount() {
+            return buildAnimationVertexCount;
         }
 
 		glm::vec3 getPosition() {
@@ -96,6 +90,11 @@ class Model {
 
         void    setTexture(const char *path) {
             this->texture = Texture(path);
+        }
+
+        void    setBuildAnimationVertexCount(int vertexCount) {
+            this->buildAnimationVertexCount = vertexCount;
+            this->renderBatch.setVertexCount(vertexCount);
         }
 
 		void	changeTextureScale(float scale) {

@@ -17,6 +17,7 @@ class Animation {
     public:
         static bool InitialAnimation(Camera *camera, glm::vec3 modelCenter, float Scale, Model *model);
         static bool TransitionAnimation(float &blendFactor);
+        static bool buildAnimation(Model *model);
 };
 
 #endif //BIM_ANIMATION_HPP
