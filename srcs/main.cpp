@@ -26,10 +26,11 @@ const char * loadShaderFromFile(const char* filename) {
     return cstr;
 }
 
-GLuint   ShaderSetups() {
+GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, const char *fragmentShaderPath) {
 	// Compile Vertex Shader
 	printColoredText("Compiling Vertex Shader\n", 0, 140, 255);
-    const char * vertexShaderSource = loadShaderFromFile("./srcs/vertexShader.glsl");
+//    const char * vertexShaderSource = loadShaderFromFile("./srcs/vertexShader.glsl");
+	const char * vertexShaderSource = loadShaderFromFile(vertexShaderPath);
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
@@ -43,8 +44,9 @@ GLuint   ShaderSetups() {
         glGetShaderInfoLog(vertexShader, logLength, NULL, errorLog.data());
 
         // Print error log
-//        std::cerr << "Vertex Shader compilation failed:\n" << errorLog.data() << std::endl;
-		printColoredText("Vertex Shader compilation failed\n", 255, 30, 30);
+	    std::stringstream ss;
+		ss << " -" << shaderLabel << " Vertex Shader compilation failed\n";
+		printColoredText(ss.str().c_str(), 255, 30, 30);
 		printColoredText(errorLog.data(), 255, 30, 30);
 
 		// Clean up and return
@@ -53,14 +55,17 @@ GLuint   ShaderSetups() {
     }
     else
     {
-		printColoredText(" -Vertex Shader compiled successfully\n", 0, 255, 255);
+		std::stringstream ss;
+		ss << " -" << shaderLabel << " Vertex Shader compiled successfully\n";
+		printColoredText(ss.str().c_str(), 0, 255, 255);
     }
 
 
     // Compile Fragment Shader
 	printColoredText("Compiling Fragment Shader\n", 0, 140, 255);
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char * fragmentShaderSource = loadShaderFromFile("./srcs/fragmentShader.glsl");
+//    const char * fragmentShaderSource = loadShaderFromFile("./srcs/fragmentShader.glsl");
+	const char * fragmentShaderSource = loadShaderFromFile(fragmentShaderPath);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
     GLint compileStatus2;
@@ -73,9 +78,10 @@ GLuint   ShaderSetups() {
         glGetShaderInfoLog(fragmentShader, logLength, NULL, errorLog.data());
 
         // Print error log
-//        std::cerr << "Fragment Shader compilation failed:\n" << errorLog.data() << std::endl;
-		printColoredText("Fragment Shader compilation failed\n", 255, 30, 30);
-		printColoredText(errorLog.data(), 255, 30, 30);\
+	    std::stringstream ss;
+	    ss << " -" << shaderLabel << " Fragment Shader compilation failed\n";
+	    printColoredText(ss.str().c_str(), 255, 30, 30);
+		printColoredText(errorLog.data(), 255, 30, 30);
 
 		// Clean up and return
 		glDeleteShader(vertexShader);
@@ -84,9 +90,10 @@ GLuint   ShaderSetups() {
     }
     else
     {
-		printColoredText(" -Fragment Shader compiled successfully\n", 0, 255, 255);
+	    std::stringstream ss;
+	    ss << " -" << shaderLabel << " Fragment Shader compiled successfully\n";
+	    printColoredText(ss.str().c_str(), 0, 255, 255);
     }
-
 
 	// Link Shaders into a Shader Program
 	GLuint shaderProgram = glCreateProgram();
@@ -102,7 +109,7 @@ GLuint   ShaderSetups() {
 	return shaderProgram;
 }
 
-GLFWwindow *InitalSetup() {
+GLFWwindow *InitialSetup() {
 	printColoredText("Initializing GLFW\n", 0, 140, 255);
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -148,14 +155,16 @@ GLFWwindow *InitalSetup() {
 
 int main(int argc, char** argv) {
 	GLFWwindow *window;
-	if ((window = InitalSetup()) == nullptr)
+	if ((window = InitialSetup()) == nullptr)
 		return -1;
 
-	GLuint shaderProgram = ShaderSetups();
+	GLuint shaderProgram = ShaderSetups("Model", "./srcs/vertexShader.glsl", "./srcs/fragmentShader.glsl");
 	if (shaderProgram == 0) {
 		glfwTerminate();
 		return -1;
 	}
+
+	GLuint skyboxShaderProgram = ShaderSetups("Skybox", "./srcs/skyboxVertexShader.glsl", "./srcs/skyboxFragmentShader.glsl");
 
 	printColoredText("Monitor refresh rate: ", 155, 80, 255);
 	printColoredText(std::to_string(glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate).c_str(), 0, 185, 185);
@@ -171,7 +180,6 @@ int main(int argc, char** argv) {
         debian_filename = argv[1];
     }
     Model model("./Resources/Textures/zebra.bmp", debian_filename, 0.3f);
-//    model.vertexBufferSetup();
 
 	DefaultPlane defaultPlane("./Resources/Textures/vaporwavegrid.bmp");
 
@@ -186,18 +194,7 @@ int main(int argc, char** argv) {
 
     ProgressBar progressBar(glm::vec2(WIN_WIDTH / 2 - 100, 60.0f), glm::vec2(200.0f, 20.0f), 100.0f, 100.0f, "./Resources/Textures/white.bmp");
 
-    float   skybox[54] = {
-            // positions xyz // texture coords uvw // normals xyz
-        -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-        -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-        0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-        0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0,
-        -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-    0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0
-    };
-
-	Texture skyboxTexture("./Resources/Textures/pattern5.bmp");
-	RenderBatch skyboxBatch(skybox, 6, *skyboxTexture.getTextureID());
+	Skybox skybox;
 
 	auto lastFPSTime = std::chrono::high_resolution_clock::now();
     int frameCount = 0;
@@ -214,15 +211,6 @@ int main(int argc, char** argv) {
 
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        //Render with texture or normal
-        int renderTexture = Input::TextureMode;
-
-        // Pass the render mode to the shader
-        GLint renderTextureLoc = glGetUniformLocation(shaderProgram, "renderTexture");
-
-        //Set the uniform in the shader to the render mode
-        glUniform1i(renderTextureLoc, renderTexture);
 
         // Pass the blend factor to the shader
         GLint blendFactorLoc = glGetUniformLocation(shaderProgram, "transitionBlendFactor");
@@ -266,13 +254,6 @@ int main(int argc, char** argv) {
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		skyboxBatch.draw();
-
-        renderTexture = 1;
-
-        // Pass the render mode to the shader
-        glUniform1i(renderTextureLoc, renderTexture);
-
 		// FPS calculation
         fpsCounter(lastFPSTime, frameCount, fps);
 
@@ -282,9 +263,16 @@ int main(int argc, char** argv) {
 
         defaultPlane.draw();
 
-        glDisable(GL_DEPTH_TEST);
+		// Draw the skybox
+		glUseProgram(skyboxShaderProgram);
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShaderProgram, "pv"), 1, GL_FALSE, glm::value_ptr(planeMatrix));
+		skybox.draw();
 
-        // Set the uniform in the shader to the MVP matrix for the text
+		glUseProgram(shaderProgram);
+
+		glDisable(GL_DEPTH_TEST);
+
+		// Set the uniform in the shader to the MVP matrix for the text
 		glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(textMatrix));
 		// Draw text
 		std::stringstream ss;
@@ -338,6 +326,7 @@ int main(int argc, char** argv) {
 
 	// Clean up
 	glDeleteProgram(shaderProgram);
+	glDeleteProgram(skyboxShaderProgram);
 
 	// Terminate GLFW
 	glfwTerminate();
