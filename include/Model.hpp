@@ -144,6 +144,11 @@ class Model {
 
             return model;
         }
+
+		glm::mat3 getRotationMatrix() {
+			return glm::mat3_cast(orientation);
+		}
+
         void    reset() {
             orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
             position = glm::vec3(0.0f, 0.0f, 0.0f);
