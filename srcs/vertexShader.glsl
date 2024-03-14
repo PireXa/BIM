@@ -1,6 +1,6 @@
 	#version 330 core
 
-    uniform mat4 vp;  // Uniform view-projection matrix
+    uniform mat4 mvp;  // Uniform view-projection matrix
 	uniform int GUITransparent;
 	uniform	float transitionBlendFactor;
 
@@ -14,13 +14,13 @@
 	flat out float TransitionBlendFactor; // Output: Transition blend factor
 
 	void main() {
+
 	    // Transform vertex position to camera space
-		gl_Position = vp * vec4(position, 1.0);
+		gl_Position = mvp * vec4(position, 1.0);
 		GUITransparency = GUITransparent;
 
-		vec2 texCoord = uv.xy;
 	    // Pass color to the fragment shader
-	    TextureFragColor = texCoord; // for texture
+	    TextureFragColor = uv.xy; // for texture
 		NormalFragColor = normal; // Pass rgb color to the fragment shader (for no texture)
 		TransitionBlendFactor = transitionBlendFactor;
 	}

@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
 	// Set up the projection matrix
 	glm::mat4 projectionMatrix = glm::perspective(glm::radians(75.0f), // FOV
 												  WIN_WIDTH / WIN_HEIGHT,          // Aspect ratio
-												  0.1f, 1000.0f);        // Near and far planes
+												  0.1f, 4000.0f);        // Near and far planes
 
 	TextFont font("./Fonts/Font3White.png");
 
@@ -224,13 +224,15 @@ int main(int argc, char** argv) {
 
         glm::mat4 modelMatrix = model.getModelMatrix();
 
+		glm::mat3 modelRotationMatrix = model.getRotationMatrix();
+
         // Combine the view matrix and projection matrix to get the final MVP matrix
         glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
         glm::mat4 planeMatrix = projectionMatrix * viewMatrix;
 		glm::mat4 textMatrix = font.getMatrix();
 
         // Pass the MVP matrix to the shader
-        GLint mvpMatrixLoc = glGetUniformLocation(shaderProgram, "vp");
+        GLint mvpMatrixLoc = glGetUniformLocation(shaderProgram, "mvp");
 
         // Set the uniform in the shader to the MVP matrix for Model
         glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));

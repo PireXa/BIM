@@ -70,11 +70,15 @@ bool Animation::buildAnimation(Model *model)
         animationState = 4;
         start = std::chrono::high_resolution_clock::now();
     }
-    auto now = std::chrono::high_resolution_clock::now();
+
+	// Calculate time per vertex using a logarithmic function
+	float time = 1.0f + 0.5f * log(model->getObj().getVertexCount());
+
+	auto now = std::chrono::high_resolution_clock::now();
     float deltaTime = std::chrono::duration<float, std::chrono::seconds::period>(now - start).count();
-    if (deltaTime < 3.0f)
+    if (deltaTime < time)
     {
-        float buildVertexCount = deltaTime * (model->getObj().getVertexCount() + 1) / 3.0f;
+        float buildVertexCount = deltaTime * (model->getObj().getVertexCount() + 1) / time;
         model->setBuildAnimationVertexCount(buildVertexCount);
         return true;
     }
