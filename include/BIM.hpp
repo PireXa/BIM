@@ -7,8 +7,10 @@
 
 //#define WIN_WIDTH 1920.0f
 //#define WIN_HEIGHT 1080.0f
-#define WIN_WIDTH 1280.0f
-#define WIN_HEIGHT 720.0f
+#define WIN_WIDTH 1600.0f
+#define WIN_HEIGHT 900.0f
+//#define WIN_WIDTH 1280.0f
+//#define WIN_HEIGHT 720.0f
 #define MAX_PLANE_DISTANCE 500.0f
 
 #define GLEW_STATIC
@@ -45,5 +47,6 @@ void    updateDefaultPlane(GLFWwindow *window, DefaultPlane &defaultPlane);
 bool mouseIntersectModel(GLFWwindow *window, Model &model, glm::mat4 &mvpMatrix);
 bool mouseIntersectPlane(GLFWwindow *window, DefaultPlane &defaultPlane, glm::mat4 &mvpMatrix);
 void	printColoredText(const char *text, int r, int g, int b);
+void	printLog(int logLevel, const char *message);
 
 #endif //BIM_BIM_HPP

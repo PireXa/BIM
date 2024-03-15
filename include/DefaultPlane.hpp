@@ -13,15 +13,6 @@
 class DefaultPlane {
     private:
         int vertexCount = 6;
-//		float vertices2[36] = {
-//			// Position            // Texture coordinates
-//			-1000.0f, -5.0f, -1000.0f,    0.0f, 0.0f, 0.0f,  // Bottom-left
-//            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
-//			 1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f, // Bottom-right
-//			1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f,  // Bottom-right
-//            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
-//			1000.0f, -5.0f, 1000.0f,      5.0f, 10.0f, 0.0f,  // Top-right
-//		};
 		float vertices[54] = {
 			// Position            // Texture coordinates
 			-1000.0f, -5.0f, -1000.0f,    0.0f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// Bottom-left
