@@ -10,13 +10,14 @@
 class Skybox {
 	private:
 		unsigned int textureID;
+		std::string skybox = "seaside";
 		std::vector<std::string> faces = {
-			"./Resources/Textures/Skybox/right.jpg",
-			"./Resources/Textures/Skybox/left.jpg",
-			"./Resources/Textures/Skybox/top.jpg",
-			"./Resources/Textures/Skybox/bottom.jpg",
-			"./Resources/Textures/Skybox/front.jpg",
-			"./Resources/Textures/Skybox/back.jpg"
+			"./Resources/Textures/Skybox/" + skybox + "/right.jpg",
+			"./Resources/Textures/Skybox/" + skybox + "/left.jpg",
+			"./Resources/Textures/Skybox/" + skybox + "/top.jpg",
+			"./Resources/Textures/Skybox/" + skybox + "/bottom.jpg",
+			"./Resources/Textures/Skybox/" + skybox + "/front.jpg",
+			"./Resources/Textures/Skybox/" + skybox + "/back.jpg"
 		};
 		GLuint VBO, VAO;
 		float size = 1000;
