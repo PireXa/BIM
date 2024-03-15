@@ -85,17 +85,8 @@ void    updateStates(GLFWwindow* window, Camera &camera, Model &model, GUI &gui)
     if (Input::keys[GLFW_KEY_LEFT_SHIFT]) {
         camera.translate(0.0f, -camera.getMoveSpeed(), 0.0f);
     }
-	if (Input::keys[GLFW_KEY_O]) {
-		model.translate(0.0f, 0.0f, -camera.getMoveSpeed());
-	}
-	if (Input::keys[GLFW_KEY_P]) {
-		model.translate(0.0f, 0.0f, camera.getMoveSpeed());
-	}
-	if (Input::keys[GLFW_KEY_L]) {
-		model.translate(camera.getMoveSpeed(), 0.0f, 0.0f);
-	}
-	if (Input::keys[GLFW_KEY_SEMICOLON]) {
-		model.translate(-camera.getMoveSpeed(), 0.0f, 0.0f);
+	if (Input::keys[GLFW_KEY_B]) {
+		model.rotate(0.01f, 0.0f, 1.0f, 0.0f);
 	}
     if (Input::keys[GLFW_KEY_R]) {
         camera.lookAt(model.getCenter());

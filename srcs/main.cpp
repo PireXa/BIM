@@ -158,13 +158,35 @@ int main(int argc, char** argv) {
 	if ((window = InitialSetup()) == nullptr)
 		return -1;
 
-	GLuint shaderProgram = ShaderSetups("Model", "./srcs/vertexShader.glsl", "./srcs/fragmentShader.glsl");
-	if (shaderProgram == 0) {
+	GLuint modelShaderProgram = ShaderSetups("Model", "./shaders/vertexShader.glsl", "./shaders/fragmentShader.glsl");
+	if (modelShaderProgram == 0) {
 		glfwTerminate();
 		return -1;
 	}
 
-	GLuint skyboxShaderProgram = ShaderSetups("Skybox", "./srcs/skyboxVertexShader.glsl", "./srcs/skyboxFragmentShader.glsl");
+	GLuint skyboxShaderProgram = ShaderSetups("Skybox", "./shaders/skyboxVertexShader.glsl", "./shaders/skyboxFragmentShader.glsl");
+	if (skyboxShaderProgram == 0) {
+		glfwTerminate();
+		return -1;
+	}
+
+	GLuint GUIshaderProgram = ShaderSetups("GUI", "./shaders/GUIVertexShader.glsl", "./shaders/GUIFragmentShader.glsl");
+	if (GUIshaderProgram == 0) {
+		glfwTerminate();
+		return -1;
+	}
+
+	GLuint DefaultPlaneShaderProgram = ShaderSetups("DefaultPlane", "./shaders/DefaultPlaneVertexShader.glsl", "./shaders/DefaultPlaneFragmentShader.glsl");
+	if (DefaultPlaneShaderProgram == 0) {
+		glfwTerminate();
+		return -1;
+	}
+
+	GLuint LightSimulationShaderProgram = ShaderSetups("LightSimulation", "./shaders/LightSimulationVertexShader.glsl", "./shaders/LightSimulationFragmentShader.glsl");
+	if (LightSimulationShaderProgram == 0) {
+		glfwTerminate();
+		return -1;
+	}
 
 	printColoredText("Monitor refresh rate: ", 155, 80, 255);
 	printColoredText(std::to_string(glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate).c_str(), 0, 185, 185);
@@ -212,43 +234,54 @@ int main(int argc, char** argv) {
 		// Render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Pass the blend factor to the shader
-        GLint blendFactorLoc = glGetUniformLocation(shaderProgram, "transitionBlendFactor");
-
-        //Set the uniform in the shader to the blend factor
-        glUniform1f(blendFactorLoc, blendFactor);
-
 		// Update Camera View Matrix
         glm::mat4 viewMatrix;
         viewMatrix = camera.getViewMatrix();
 
         glm::mat4 modelMatrix = model.getModelMatrix();
 
-		glm::mat3 modelRotationMatrix = model.getRotationMatrix();
-
         // Combine the view matrix and projection matrix to get the final MVP matrix
         glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
         glm::mat4 planeMatrix = projectionMatrix * viewMatrix;
 		glm::mat4 textMatrix = font.getMatrix();
 
-        // Pass the MVP matrix to the shader
-        GLint mvpMatrixLoc = glGetUniformLocation(shaderProgram, "mvp");
-
-        // Set the uniform in the shader to the MVP matrix for Model
-        glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-
-		// Use the shader program and VAO
-		glUseProgram(shaderProgram);
+		GLuint blendFactorLoc;
+		if (Input::LightSimulation)
+		{
+			// Use the Light Simulation Shader Program
+			glUseProgram(LightSimulationShaderProgram);
+			// Set the uniform in the shader to transitionBlendFactor to switch between the texture and normal map
+			blendFactorLoc = glGetUniformLocation(LightSimulationShaderProgram, "transitionBlendFactor");
+			// Set the uniform in the shader to the MVP matrix
+			glUniformMatrix4fv(glGetUniformLocation(LightSimulationShaderProgram, "mvp"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+			// Set the uniform in the shader to the model matrix
+			glUniformMatrix4fv(glGetUniformLocation(LightSimulationShaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+			// Set the uniform in the shader to the normal matrix
+			glUniformMatrix4fv(glGetUniformLocation(LightSimulationShaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(glm::transpose((glm::inverse(modelMatrix)))));
+		}
+		else
+		{
+			// Use the Default Model Shader Program
+			glUseProgram(modelShaderProgram);
+			// Set the uniform in the shader to transitionBlendFactor to switch between the texture and normal map
+			blendFactorLoc = glGetUniformLocation(modelShaderProgram, "transitionBlendFactor");
+			// Set the uniform in the shader to the MVP matrix
+			glUniformMatrix4fv(glGetUniformLocation(modelShaderProgram, "mvp"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+			// Set the uniform in the shader to the model matrix
+			glUniformMatrix4fv(glGetUniformLocation(modelShaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
+			// Set the uniform in the shader to the normal matrix
+			glUniformMatrix4fv(glGetUniformLocation(modelShaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(glm::transpose((glm::inverse(modelMatrix)))));
+		}
 
         if (Input::WireframeMode)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        if (Input::TextureMode)
-            glUniform1f(blendFactorLoc, blendFactor);
-        else
-            glUniform1f(blendFactorLoc, 1.0f - blendFactor);
+		if (Input::TextureMode)
+			glUniform1f(blendFactorLoc, blendFactor);
+		else
+			glUniform1f(blendFactorLoc, 1.0f - blendFactor);
 
 		model.draw();
 
@@ -260,8 +293,10 @@ int main(int argc, char** argv) {
         fpsCounter(lastFPSTime, frameCount, fps);
 
 		// Draw the XZ plane
+		glUseProgram(DefaultPlaneShaderProgram);
+
 		// Set the uniform in the shader to the MVP matrix for the XZ plane
-        glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(planeMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(DefaultPlaneShaderProgram, "planeMatrix"), 1, GL_FALSE, glm::value_ptr(planeMatrix));
 
         defaultPlane.draw();
 
@@ -270,12 +305,13 @@ int main(int argc, char** argv) {
 		glUniformMatrix4fv(glGetUniformLocation(skyboxShaderProgram, "pv"), 1, GL_FALSE, glm::value_ptr(planeMatrix));
 		skybox.draw();
 
-		glUseProgram(shaderProgram);
+		glUseProgram(GUIshaderProgram);
 
 		glDisable(GL_DEPTH_TEST);
 
-		// Set the uniform in the shader to the MVP matrix for the text
-		glUniformMatrix4fv(mvpMatrixLoc, 1, GL_FALSE, glm::value_ptr(textMatrix));
+		// Set the uniform in the shader to the text matrix
+		glUniformMatrix4fv(glGetUniformLocation(GUIshaderProgram, "textMatrix"), 1, GL_FALSE, glm::value_ptr(textMatrix));
+
 		// Draw text
 		std::stringstream ss;
 		ss << std::fixed << std::setprecision(2) << fps;
@@ -284,14 +320,14 @@ int main(int argc, char** argv) {
 
         //GUI Transparency based on Mouse Mode (0 = Control Cursor, 1 = Control Camera) CTRL to toggle
         if (Input::mouseMode == 0)
-            glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0); //Non-Transparent
+            glUniform1i(glGetUniformLocation(GUIshaderProgram, "GUITransparent"), 0); //Non-Transparent
         else
-            glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 1); //Transparent
+            glUniform1i(glGetUniformLocation(GUIshaderProgram, "GUITransparent"), 1); //Transparent
 
         // Draw GUI
         gui.draw();
 
-        glUniform1i(glGetUniformLocation(shaderProgram, "GUITransparent"), 0);
+        glUniform1i(glGetUniformLocation(GUIshaderProgram, "GUITransparent"), 0);
 
         // Draw Progress Bar
         if (blendFactor == 1.0f)
@@ -327,7 +363,7 @@ int main(int argc, char** argv) {
 	}
 
 	// Clean up
-	glDeleteProgram(shaderProgram);
+	glDeleteProgram(modelShaderProgram);
 	glDeleteProgram(skyboxShaderProgram);
 
 	// Terminate GLFW
