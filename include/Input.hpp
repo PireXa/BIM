@@ -36,6 +36,7 @@ class Input {
         static glm::vec2 dropPosition;
         static std::vector<std::string> filePaths;
         static bool beginTransition;
+		static bool LightSimulation;
 
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
         static void mouseCallback(GLFWwindow* window, double xpos, double ypos);

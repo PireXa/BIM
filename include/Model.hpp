@@ -71,6 +71,10 @@ class Model {
 			return &renderBatch;
 		}
 
+		glm::quat getOrientation() {
+			return orientation;
+		}
+
         void    setCenter(glm::vec3 center) {
             this->center = center;
         }

@@ -13,14 +13,23 @@
 class DefaultPlane {
     private:
         int vertexCount = 6;
-		float vertices[36] = {
+//		float vertices2[36] = {
+//			// Position            // Texture coordinates
+//			-1000.0f, -5.0f, -1000.0f,    0.0f, 0.0f, 0.0f,  // Bottom-left
+//            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
+//			 1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f, // Bottom-right
+//			1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f,  // Bottom-right
+//            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
+//			1000.0f, -5.0f, 1000.0f,      5.0f, 10.0f, 0.0f,  // Top-right
+//		};
+		float vertices[54] = {
 			// Position            // Texture coordinates
-			-1000.0f, -5.0f, -1000.0f,    0.0f, 0.0f, 0.0f,  // Bottom-left
-            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
-			 1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f, // Bottom-right
-			1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f,  // Bottom-right
-            -1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,  // Top-left
-			1000.0f, -5.0f, 1000.0f,      5.0f, 10.0f, 0.0f,  // Top-right
+			-1000.0f, -5.0f, -1000.0f,    0.0f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,	// Bottom-left
+			-1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f,		0.0f, 1.0f, 0.0f,  // Top-left
+			 1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f, // Bottom-right
+			1000.0f, -5.0f, -1000.0f,     5.0f, 0.0f, 0.0f,		0.0f, 1.0f, 0.0f,  // Bottom-right
+			-1000.0f, -5.0f, 1000.0f,     0.0f, 10.0f, 0.0f, 	0.0f, 1.0f, 0.0f,  // Top-left
+			1000.0f, -5.0f, 1000.0f,      5.0f, 10.0f, 0.0f, 	0.0f, 1.0f, 0.0f,  // Top-right
 		};
 		GLuint VAO;
 		GLuint VBO;
@@ -30,12 +39,12 @@ class DefaultPlane {
 
             //Adjust the texture coordinates to fit the texture
             float textureAspectRatio = (float)texture.getWidth() / (float)texture.getHeight();
-            vertices[10] = textureAspectRatio * 40.0f;
-            vertices[15] = 40.0f;
+            vertices[13] = textureAspectRatio * 40.0f;
             vertices[21] = 40.0f;
-            vertices[28] = textureAspectRatio * 40.0f;
-            vertices[33] = 40.0f;
-            vertices[34] = textureAspectRatio * 40.0f;
+            vertices[30] = 40.0f;
+            vertices[40] = textureAspectRatio * 40.0f;
+            vertices[48] = 40.0f;
+            vertices[49] = textureAspectRatio * 40.0f;
 
 			// Generate VBO and VAO for the XZ plane
 			glGenBuffers(1, &VBO);
@@ -46,13 +55,15 @@ class DefaultPlane {
 
 			// Bind VBO for the XZ plane and copy vertex data to it
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * vertexCount, vertices, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9 * vertexCount, vertices, GL_STATIC_DRAW);
 
 			// Specify vertex attribute pointers and enable them for the XZ plane
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(2);
 
 			// Unbind VAO and VBO for the XZ plane
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
