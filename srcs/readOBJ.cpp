@@ -564,15 +564,20 @@ void    readOBJ::CalculateNormals()
         Vertex v2 = {verticesArray[i + 9], verticesArray[i + 10], verticesArray[i + 11]};
         Vertex v3 = {verticesArray[i + 18], verticesArray[i + 19], verticesArray[i + 20]};
 
+		//middle point of the triangle
+		glm::vec3 middle = glm::vec3((v1.x + v2.x + v3.x) / 3, (v1.y + v2.y + v3.y) / 3, (v1.z + v2.z + v3.z) / 3);
+
         glm::vec3 edge1 = glm::vec3(v2.x - v1.x, v2.y - v1.y, v2.z - v1.z);
         glm::vec3 edge2 = glm::vec3(v3.x - v1.x, v3.y - v1.y, v3.z - v1.z);
         glm::vec3 normal = glm::cross(edge1, edge2);
         normal = glm::normalize(normal);
+		if (dot(normal, middle - this->center) < 0)
+			normal = -normal;
 		normal.x = (normal.x + 1) / 2;
 		normal.y = (normal.y + 1) / 2;
 		normal.z = (normal.z + 1) / 2;
-        verticesArray[i + 6] = normal.x;
-        verticesArray[i + 7] = normal.y;
+		verticesArray[i + 6] = normal.x;
+		verticesArray[i + 7] = normal.y;
         verticesArray[i + 8] = normal.z;
         verticesArray[i + 15] = normal.x;
         verticesArray[i + 16] = normal.y;

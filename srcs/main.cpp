@@ -11,6 +11,44 @@ void	printColoredText(const char *text, int r, int g, int b) {
 	std::cout << "\033[38;2;" << r << ";" << g << ";" << b << "m" << text << "\033[0m";
 }
 
+void	printLog(int logLevel, const char *message) {
+	if (logLevel == 0) {
+		printColoredText("######### Fatal Error #########\n", 255, 30, 30);
+		printColoredText(message, 255, 30, 30);
+		std::cout << std::endl;
+	}
+	else if (logLevel == 1) {
+		printColoredText("######### Warning #########\n", 255, 100, 100);
+		printColoredText(message, 255, 100, 100);
+		std::cout << std::endl;
+	}
+	else if (logLevel == 2) {
+		printColoredText("     -> ", 255, 255, 255);
+		printColoredText(message, 255, 255, 255);
+		std::cout << std::endl;
+	}
+	else if (logLevel == 3) {
+		printColoredText("    -> ", 0, 255, 255);
+		printColoredText(message, 0, 255, 255);
+		std::cout << std::endl;
+	}
+	else if (logLevel == 4) {
+		printColoredText("   -> ", 0, 140, 255);
+		printColoredText(message, 0, 140, 255);
+		std::cout << std::endl;
+	}
+	else if (logLevel == 5) {
+		printColoredText(" -< ", 0, 80, 255);
+		printColoredText(message, 0, 80, 255);
+		printColoredText(" >-\n", 0, 80, 255);
+	}
+	else if (logLevel == 6) {
+		printColoredText(" <#> ", 0, 200, 100);
+		printColoredText(message, 0, 200, 100);
+		printColoredText(" <#>\n", 0, 200, 100);
+	}
+}
+
 const char * loadShaderFromFile(const char* filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -28,8 +66,14 @@ const char * loadShaderFromFile(const char* filename) {
 
 GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, const char *fragmentShaderPath) {
 	// Compile Vertex Shader
-	printColoredText("Compiling Vertex Shader\n", 0, 140, 255);
-//    const char * vertexShaderSource = loadShaderFromFile("./srcs/vertexShader.glsl");
+	std::stringstream ss;
+	ss << "Compiling " << shaderLabel << " Shader Program";
+	printLog(5, ss.str().c_str());
+
+	ss.str("");
+	ss << "Compiling " << shaderLabel << " Vertex Shader";
+	printLog(4, ss.str().c_str());
+
 	const char * vertexShaderSource = loadShaderFromFile(vertexShaderPath);
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
@@ -45,9 +89,8 @@ GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, con
 
         // Print error log
 	    std::stringstream ss;
-		ss << " -" << shaderLabel << " Vertex Shader compilation failed\n";
-		printColoredText(ss.str().c_str(), 255, 30, 30);
-		printColoredText(errorLog.data(), 255, 30, 30);
+		ss << shaderLabel << " Vertex Shader compilation failed\n" << errorLog.data();
+		printLog(0, ss.str().c_str());
 
 		// Clean up and return
 		glDeleteShader(vertexShader);
@@ -56,15 +99,16 @@ GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, con
     else
     {
 		std::stringstream ss;
-		ss << " -" << shaderLabel << " Vertex Shader compiled successfully\n";
-		printColoredText(ss.str().c_str(), 0, 255, 255);
+		ss << shaderLabel << " Vertex Shader compiled successfully";
+		printLog(3, ss.str().c_str());
     }
 
 
     // Compile Fragment Shader
-	printColoredText("Compiling Fragment Shader\n", 0, 140, 255);
+	ss.str("");
+	ss << "Compiling " << shaderLabel << " Fragment Shader";
+	printLog(4, ss.str().c_str());
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-//    const char * fragmentShaderSource = loadShaderFromFile("./srcs/fragmentShader.glsl");
 	const char * fragmentShaderSource = loadShaderFromFile(fragmentShaderPath);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
@@ -79,9 +123,8 @@ GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, con
 
         // Print error log
 	    std::stringstream ss;
-	    ss << " -" << shaderLabel << " Fragment Shader compilation failed\n";
-	    printColoredText(ss.str().c_str(), 255, 30, 30);
-		printColoredText(errorLog.data(), 255, 30, 30);
+		ss << shaderLabel << " Fragment Shader compilation failed\n" << errorLog.data();
+		printLog(0, ss.str().c_str());
 
 		// Clean up and return
 		glDeleteShader(vertexShader);
@@ -91,8 +134,8 @@ GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, con
     else
     {
 	    std::stringstream ss;
-	    ss << " -" << shaderLabel << " Fragment Shader compiled successfully\n";
-	    printColoredText(ss.str().c_str(), 0, 255, 255);
+	    ss << shaderLabel << " Fragment Shader compiled successfully";
+		printLog(3, ss.str().c_str());
     }
 
 	// Link Shaders into a Shader Program
@@ -104,13 +147,13 @@ GLuint   ShaderSetups(const char *shaderLabel, const char *vertexShaderPath, con
 	// Clean up individual shaders (they are no longer needed after linking)
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-    free ((void *)vertexShaderSource);
-    free ((void *)fragmentShaderSource);
+    delete vertexShaderSource;
+	delete fragmentShaderSource;
 	return shaderProgram;
 }
 
 GLFWwindow *InitialSetup() {
-	printColoredText("Initializing GLFW\n", 0, 140, 255);
+	printLog(6, "Initializing OpenGL Setup");
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -119,13 +162,13 @@ GLFWwindow *InitialSetup() {
     GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", nullptr, nullptr);
 //    GLFWwindow *window = glfwCreateWindow(WIN_WIDTH, WIN_HEIGHT, "BIM", glfwGetPrimaryMonitor(), nullptr);
 	if (window == nullptr) {
-		printColoredText("Failed to create GLFW window\n", 255, 30, 30);
+		printLog(0, "Failed to create GLFW window");
 		glfwTerminate();
 		return nullptr;
 	}
 	glfwMakeContextCurrent(window);
 	if (glewInit() != GLEW_OK) {
-		printColoredText("Failed to initialize GLEW\n", 255, 30, 30);
+		printLog(0, "Failed to initialize GLEW");
 		glfwTerminate();
 		return nullptr;
 	}
@@ -148,8 +191,9 @@ GLFWwindow *InitialSetup() {
 //	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
-	printColoredText(" -GLFW initialized successfully\n", 0, 255, 255);
-	printColoredText(" -GLEW initialized successfully\n", 0, 255, 255);
+	printLog(5, "GLFW initialized successfully");
+	printLog(5, "GLEW initialized successfully");
+	printLog(6, "OpenGL initialized successfully");
 	return window;
 }
 
@@ -158,7 +202,8 @@ int main(int argc, char** argv) {
 	if ((window = InitialSetup()) == nullptr)
 		return -1;
 
-	GLuint modelShaderProgram = ShaderSetups("Model", "./shaders/vertexShader.glsl", "./shaders/fragmentShader.glsl");
+	printLog(6, "Compiling Shaders");
+	GLuint modelShaderProgram = ShaderSetups("Model", "./shaders/modelVertexShader.glsl", "./shaders/modelFragmentShader.glsl");
 	if (modelShaderProgram == 0) {
 		glfwTerminate();
 		return -1;
@@ -187,6 +232,7 @@ int main(int argc, char** argv) {
 		glfwTerminate();
 		return -1;
 	}
+	printLog(6, "Shaders compiled successfully");
 
 	printColoredText("Monitor refresh rate: ", 155, 80, 255);
 	printColoredText(std::to_string(glfwGetVideoMode(glfwGetPrimaryMonitor())->refreshRate).c_str(), 0, 185, 185);
